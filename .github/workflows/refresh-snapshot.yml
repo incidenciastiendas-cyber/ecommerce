@@ -1,0 +1,44 @@
+name: Refrescar snapshot (cada 30 min)
+
+# Capta datos de ClickHouse y publica el snapshot en Firebase Hosting.
+# NO consulta en vivo desde el navegador (respeta la cuota de ~5GB/día del data lake).
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # cada 30 minutos (UTC). Ajustar si la cuota aprieta.
+  workflow_dispatch: {}        # permite correrlo a mano
+
+# Evita corridas solapadas (no duplica lectura de cuota)
+concurrency:
+  group: refresh-snapshot
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generar snapshot desde ClickHouse
+        env:
+          CLICKHOUSE_HOST: quantics.data-lake.janis.in
+          CLICKHOUSE_PORT: "8443"
+          CLICKHOUSE_SCHEMA: janis_datawarehouse_masonline
+          CH_USER: ${{ secrets.CLICKHOUSE_USER }}
+          CH_PASS: ${{ secrets.CLICKHOUSE_PASSWORD }}
+          ETL_DIAS: "3"
+        run: node etl/build-snapshot.js
+
+      # Publica SOLO el hosting (sirve public/, incl. el snapshot fresco).
+      # No commitea el snapshot al repo (no metemos datos de negocio en git).
+      - name: Deploy a Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: masonline-f2736
+          channelId: live

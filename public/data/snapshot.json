@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-06-10T01:55:00.000Z",
+  "demo": true,
+  "nota": "Snapshot PARCIAL con datos reales de ayer (09/06). El ETL completo por tienda corre tras el reset de cuota (00:00 11/06).",
+  "dias": ["2026-06-09"],
+  "ventas": {
+    "2026-06-09": {
+      "__TOTAL__": { "pedidos": 1150, "venta": 144394815, "skus": 3870, "horas_sum": 15100, "horas_cnt": 1000 }
+    }
+  },
+  "gestion": {
+    "2026-06-09": {
+      "2997": { "total": 234, "entregado": 196, "pendiente": 38, "cancelado": 0, "postergado": 0, "no_entregado": 0, "facturado": 0 },
+      "3605": { "total": 135, "entregado": 83, "pendiente": 52, "cancelado": 0, "postergado": 0, "no_entregado": 0, "facturado": 0 },
+      "3601": { "total": 133, "entregado": 119, "pendiente": 14, "cancelado": 0, "postergado": 0, "no_entregado": 0, "facturado": 0 },
+      "2999": { "total": 113, "entregado": 106, "pendiente": 7, "cancelado": 0, "postergado": 0, "no_entregado": 0, "facturado": 0 },
+      "2998": { "total": 113, "entregado": 99, "pendiente": 14, "cancelado": 0, "postergado": 0, "no_entregado": 0, "facturado": 0 },
+      "__OTRAS__": {
+        "total": 954, "entregado": 799, "pendiente": 114, "cancelado": 35, "postergado": 0, "no_entregado": 6, "facturado": 1505,
+        "canal": { "delivery": 775, "store_pickup": 615, "drive_through": 292 },
+        "antig": { "0": 379, "1": 979, "2": 172, "3": 72, "4": 22, "5": 11, "6": 9, "7": 14 }
+      }
+    }
+  }
+}

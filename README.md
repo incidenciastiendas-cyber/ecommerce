@@ -4,20 +4,38 @@ Dashboards de **solo lectura** sobre el data lake de JANIS (logística / e-comme
 Conexión vía **API/ClickHouse** a través de un proxy seguro en Firebase Cloud Functions.
 Sin base de datos propia, sin input de usuario — solo visualización.
 
-## 🏗️ Arquitectura
+## 🏗️ Arquitectura (ETL → snapshot, NO consulta en vivo)
+
+> ⚠️ El data lake tiene **cuota de lectura ~5 GB/día**. Por eso el dashboard **no consulta
+> ClickHouse en vivo**: un ETL programado captura los agregados cada 30 min y el frontend
+> lee ese snapshot ya calculado (instantáneo y barato).
 
 ```
-Frontend (Firebase Hosting, public/)
-   │  Firebase Auth (login Google, solo @gdnargentina.com)
-   ▼
-Cloud Functions (functions/)  ── proxy seguro, valida dominio, guarda credenciales
-   ▼
-ClickHouse data lake JANIS (quantics.data-lake.janis.in:8443)
+GitHub Actions (cron */30)  ──>  etl/build-snapshot.js  ──>  consulta ClickHouse (liviano)
+        │                                                     (quantics.data-lake.janis.in:8443)
+        ▼
+  public/data/snapshot.json  ──>  Firebase Hosting  ──>  Dashboard (lee el snapshot)
+                                        + Firebase Auth (login @gdnargentina.com)
 ```
 
-- El frontend **nunca** ve las credenciales de la base.
-- El cliente **no envía SQL**: pide reportes por `queryId` (queries parametrizadas en el backend → sin inyección).
-- Acceso restringido a `@gdnargentina.com`, validado **del lado servidor**.
+- El frontend **nunca** toca ClickHouse ni ve credenciales: solo lee el snapshot.
+- El ETL corre **server-side** (GitHub Actions) con las credenciales en GitHub Secrets.
+- **Modo DEMO:** si `public/firebase-config.js` no tiene `apiKey` real, el front saltea el login
+  y muestra el snapshot → permite previsualizar sin deployar.
+- Cloud Functions (`functions/`) quedan como **opción** para consultas en vivo puntuales
+  (ej. "productos no encontrados" detallado). Requieren plan Blaze; el resto es plan gratuito.
+
+### 🔑 Secrets de GitHub Actions (repo → Settings → Secrets → Actions)
+| Secret | Valor |
+|---|---|
+| `CLICKHOUSE_USER` | usuario del data lake |
+| `CLICKHOUSE_PASSWORD` | password del data lake |
+| `FIREBASE_SERVICE_ACCOUNT` | contenido del JSON del service account (masonline-f2736) |
+
+### ▶️ Correr el ETL local
+```bash
+CH_USER=.. CH_PASS=.. node etl/build-snapshot.js   # genera public/data/snapshot.json
+```
 
 Ver [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) y el mapeo de campos en [docs/DICCIONARIO_DATOS.md](docs/DICCIONARIO_DATOS.md).
 

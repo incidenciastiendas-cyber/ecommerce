@@ -11,6 +11,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* el atributo hidden gana a display:flex de las clases */
 html, body { margin: 0; height: 100%; }
 body {
   background: var(--bg);
@@ -53,7 +54,7 @@ body {
 .login-card .btn { width: 100%; padding: 12px; }
 
 /* Dashboard */
-.dashboard { display: flex; height: calc(100vh - 56px); }
+.app, .dashboard { display: flex; height: calc(100vh - 56px); }
 .sidebar {
   width: 240px; background: var(--panel); border-right: 1px solid var(--border);
   padding: 18px 12px; flex-shrink: 0;

@@ -29,6 +29,9 @@ firestore-debug.log
 ui-debug.log
 *.log
 
+# ── Tooling local ──
+.claude/
+
 # ── Sistema / editores ──
 .DS_Store
 Thumbs.db
