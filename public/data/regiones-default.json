@@ -1,0 +1,642 @@
+{
+  "AMBA": [
+    {
+      "cod": "7460",
+      "nombre": "CD-Moreno",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Cuartel V"
+    },
+    {
+      "cod": "masonlineprod0006-Preventa",
+      "nombre": "Preventa",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Cuartel V"
+    },
+    {
+      "cod": "masonlineprod0101-Star",
+      "nombre": "Star",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "La Tablada"
+    },
+    {
+      "cod": "1018",
+      "nombre": "Sucurcal Punto Mayorista Quilmes",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Quilmes Oeste"
+    },
+    {
+      "cod": "1035",
+      "nombre": "Sucursal 3 de Febrero",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Loma Hermosa"
+    },
+    {
+      "cod": "1028",
+      "nombre": "Sucursal Alte Brown",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Adrogué"
+    },
+    {
+      "cod": "2999",
+      "nombre": "Sucursal Avellaneda",
+      "provincia": "Buenos Aires",
+      "ciudad": "Avellaneda"
+    },
+    {
+      "cod": "1016",
+      "nombre": "Sucursal Avellaneda II",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Sarandí"
+    },
+    {
+      "cod": "1096",
+      "nombre": "Sucursal Caseros",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Caseros"
+    },
+    {
+      "cod": "1059",
+      "nombre": "Sucursal Catan",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "González Catán"
+    },
+    {
+      "cod": "1110",
+      "nombre": "Sucursal Claypole",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Don Orione"
+    },
+    {
+      "cod": "2997",
+      "nombre": "Sucursal Constituyentes",
+      "provincia": "Buenos Aires",
+      "ciudad": "Buenos Aires"
+    },
+    {
+      "cod": "1030",
+      "nombre": "Sucursal Jose C Paz",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "José C. Paz"
+    },
+    {
+      "cod": "1017",
+      "nombre": "Sucursal La Tablada",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "La Tablada"
+    },
+    {
+      "cod": "1043",
+      "nombre": "Sucursal LaFerrere",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Gregorio de Laferrere"
+    },
+    {
+      "cod": "1050",
+      "nombre": "Sucursal Lanus",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Lanus"
+    },
+    {
+      "cod": "1014",
+      "nombre": "Sucursal Lujan",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Luján"
+    },
+    {
+      "cod": "1032",
+      "nombre": "Sucursal Malvinas",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Polvorines"
+    },
+    {
+      "cod": "1027",
+      "nombre": "Sucursal Mataderos",
+      "provincia": "Ciudad Autónoma de Buenos Aires",
+      "ciudad": "Buenos Aires"
+    },
+    {
+      "cod": "1029",
+      "nombre": "Sucursal Moreno",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Moreno"
+    },
+    {
+      "cod": "1119",
+      "nombre": "Sucursal Moreno Derqui",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Cuartel V"
+    },
+    {
+      "cod": "1036",
+      "nombre": "Sucursal Moreno Shopping",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Moreno"
+    },
+    {
+      "cod": "1116",
+      "nombre": "Sucursal Moron",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Morón"
+    },
+    {
+      "cod": "1087",
+      "nombre": "Sucursal Pilar",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Pilar"
+    },
+    {
+      "cod": "1004",
+      "nombre": "Sucursal San Fernando",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "San Fernando"
+    },
+    {
+      "cod": "2998",
+      "nombre": "Sucursal San Justo",
+      "provincia": "Buenos Aires",
+      "ciudad": "La Matanza"
+    },
+    {
+      "cod": "1037",
+      "nombre": "Sucursal San Martin Estada",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "San Martín"
+    },
+    {
+      "cod": "1084",
+      "nombre": "Sucursal San Vicente",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "San Vicente"
+    },
+    {
+      "cod": "1069",
+      "nombre": "Sucursal Site2Costumer",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Villa Rosa"
+    },
+    {
+      "cod": "1013",
+      "nombre": "Sucursal Tigre",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "El Talar"
+    },
+    {
+      "cod": "1045",
+      "nombre": "Sucursal Vergara",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Villa Tesei"
+    },
+    {
+      "cod": "1044",
+      "nombre": "Sucursal Villegas",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "William C. Morris"
+    },
+    {
+      "cod": "1076",
+      "nombre": "Sucursal Zamora",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Temperley"
+    },
+    {
+      "cod": "masonlineprod0008-Venta-en-verde",
+      "nombre": "Venta-en-verde",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Cuartel V"
+    }
+  ],
+  "BA Interior": [
+    {
+      "cod": "3602",
+      "nombre": "Sucursal Bahia Blanca",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Bahía Blanca"
+    },
+    {
+      "cod": "4001",
+      "nombre": "Sucursal Campana",
+      "provincia": "Buenos Aires",
+      "ciudad": "Campana"
+    },
+    {
+      "cod": "1061",
+      "nombre": "Sucursal Junin",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Junín"
+    },
+    {
+      "cod": "3601",
+      "nombre": "Sucursal La Plata",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "La Plata"
+    },
+    {
+      "cod": "1054",
+      "nombre": "Sucursal Olavarria",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Olavarría"
+    },
+    {
+      "cod": "1046",
+      "nombre": "Sucursal Pergamino",
+      "provincia": "Provincia de Buenos Aires",
+      "ciudad": "Pergamino"
+    }
+  ],
+  "Centro": [
+    {
+      "cod": "3605",
+      "nombre": "Sucursal Cordoba Oeste",
+      "provincia": "Córdoba",
+      "ciudad": "Córdoba"
+    },
+    {
+      "cod": "1010",
+      "nombre": "Sucursal Cordoba Sur",
+      "provincia": "Córdoba",
+      "ciudad": "Córdoba"
+    },
+    {
+      "cod": "3606",
+      "nombre": "Sucursal Cordoba Talleres",
+      "provincia": "Córdoba",
+      "ciudad": "Córdoba"
+    },
+    {
+      "cod": "1097",
+      "nombre": "Sucursal Donato Alvarez",
+      "provincia": "Córdoba",
+      "ciudad": "Córdoba"
+    },
+    {
+      "cod": "1060",
+      "nombre": "Sucursal Fuerza Aerea",
+      "provincia": "Córdoba",
+      "ciudad": "Córdoba"
+    },
+    {
+      "cod": "1077",
+      "nombre": "Sucursal Gral Pico",
+      "provincia": "La Pampa",
+      "ciudad": "General Pico"
+    },
+    {
+      "cod": "1023",
+      "nombre": "Sucursal La Pampa",
+      "provincia": "La Pampa",
+      "ciudad": "Santa Rosa"
+    },
+    {
+      "cod": "1039",
+      "nombre": "Sucursal Parana",
+      "provincia": "Entre Ríos",
+      "ciudad": "Paraná"
+    },
+    {
+      "cod": "3604",
+      "nombre": "Sucursal Paraná",
+      "provincia": "Entre Ríos",
+      "ciudad": "Paraná"
+    },
+    {
+      "cod": "1002",
+      "nombre": "Sucursal Rio Cuarto",
+      "provincia": "Córdoba",
+      "ciudad": "Río Cuarto"
+    },
+    {
+      "cod": "3603",
+      "nombre": "Sucursal Santa Fe",
+      "provincia": "Santa Fe",
+      "ciudad": "Santa Fe"
+    },
+    {
+      "cod": "1100",
+      "nombre": "Sucursal Santa Rosa II",
+      "provincia": "La Pampa",
+      "ciudad": "Santa Rosa"
+    },
+    {
+      "cod": "1056",
+      "nombre": "Sucursal Villa Nueva",
+      "provincia": "Córdoba",
+      "ciudad": "Villa Nueva"
+    }
+  ],
+  "Cuyo": [
+    {
+      "cod": "3613",
+      "nombre": "Sucursal Guaymallen",
+      "provincia": "Mendoza",
+      "ciudad": "Dorrego"
+    },
+    {
+      "cod": "1005",
+      "nombre": "Sucursal Las Heras",
+      "provincia": "Mendoza",
+      "ciudad": "Las Heras"
+    },
+    {
+      "cod": "1015",
+      "nombre": "Sucursal Maipu",
+      "provincia": "Mendoza",
+      "ciudad": "Maipú"
+    },
+    {
+      "cod": "1068",
+      "nombre": "Sucursal Palmares",
+      "provincia": "Mendoza",
+      "ciudad": "Godoy Cruz"
+    },
+    {
+      "cod": "1081",
+      "nombre": "Sucursal Rawson",
+      "provincia": "San Juan",
+      "ciudad": "Villa Krause"
+    },
+    {
+      "cod": "1006",
+      "nombre": "Sucursal San Juan",
+      "provincia": "San Juan",
+      "ciudad": "San Juan"
+    },
+    {
+      "cod": "1092",
+      "nombre": "Sucursal San Juan Norte",
+      "provincia": "San Juan",
+      "ciudad": "Chimbas"
+    },
+    {
+      "cod": "1003",
+      "nombre": "Sucursal San Luis",
+      "provincia": "San Luis",
+      "ciudad": "San Luis"
+    },
+    {
+      "cod": "1067",
+      "nombre": "Sucursal San Martin",
+      "provincia": "Mendoza",
+      "ciudad": "Mendoza"
+    },
+    {
+      "cod": "1055",
+      "nombre": "Sucursal Villa Mercedes",
+      "provincia": "San Luis",
+      "ciudad": "Villa Mercedes"
+    }
+  ],
+  "NOA": [
+    {
+      "cod": "1082",
+      "nombre": "Sucursal Av Jujuy",
+      "provincia": "Tucumán",
+      "ciudad": "San Miguel de Tucumán"
+    },
+    {
+      "cod": "1026",
+      "nombre": "Sucursal Catamarca",
+      "provincia": "Catamarca",
+      "ciudad": "San Fernando del Valle de Catamarca"
+    },
+    {
+      "cod": "1088",
+      "nombre": "Sucursal Concepcion",
+      "provincia": "Tucumán",
+      "ciudad": "Concepción"
+    },
+    {
+      "cod": "1106",
+      "nombre": "Sucursal Ejercito Norte",
+      "provincia": "Tucumán",
+      "ciudad": "San Miguel de Tucumán"
+    },
+    {
+      "cod": "1031",
+      "nombre": "Sucursal Jujuy",
+      "provincia": "Jujuy",
+      "ciudad": "San Salvador de Jujuy"
+    },
+    {
+      "cod": "1007",
+      "nombre": "Sucursal La Rioja",
+      "provincia": "La Rioja",
+      "ciudad": "La Rioja"
+    },
+    {
+      "cod": "1052",
+      "nombre": "Sucursal Oran",
+      "provincia": "Salta",
+      "ciudad": "San Ramon de la Nueva Oran"
+    },
+    {
+      "cod": "1033",
+      "nombre": "Sucursal Rio Sali",
+      "provincia": "Tucumán",
+      "ciudad": "Banda del Río Salí"
+    },
+    {
+      "cod": "1011",
+      "nombre": "Sucursal Salta",
+      "provincia": "Salta",
+      "ciudad": "Salta"
+    },
+    {
+      "cod": "1075",
+      "nombre": "Sucursal Salta Fuerza Aerea",
+      "provincia": "Salta",
+      "ciudad": "Salta"
+    },
+    {
+      "cod": "1111",
+      "nombre": "Sucursal San Pedro",
+      "provincia": "Jujuy",
+      "ciudad": "San Pedro de Jujuy"
+    },
+    {
+      "cod": "1012",
+      "nombre": "Sucursal Santiago",
+      "provincia": "Santiago del Estero",
+      "ciudad": "La Banda"
+    },
+    {
+      "cod": "1080",
+      "nombre": "Sucursal Santiago del estero SUR",
+      "provincia": "Santiago del Estero",
+      "ciudad": "Santiago del Estero"
+    },
+    {
+      "cod": "1078",
+      "nombre": "Sucursal Tartagal",
+      "provincia": "Salta",
+      "ciudad": "Tartagal"
+    },
+    {
+      "cod": "1020",
+      "nombre": "Sucursal Tucuman 1020",
+      "provincia": "Tucumán",
+      "ciudad": "Yerba Buena"
+    }
+  ],
+  "NEA": [
+    {
+      "cod": "1085",
+      "nombre": "Sucursal Av Maipu",
+      "provincia": "Corrientes",
+      "ciudad": "Corrientes"
+    },
+    {
+      "cod": "1114",
+      "nombre": "Sucursal Clorinda",
+      "provincia": "Formosa",
+      "ciudad": "Clorinda"
+    },
+    {
+      "cod": "1008",
+      "nombre": "Sucursal Corrientes",
+      "provincia": "Corrientes",
+      "ciudad": "Corrientes"
+    },
+    {
+      "cod": "1024",
+      "nombre": "Sucursal Formosa Gutniski",
+      "provincia": "Formosa",
+      "ciudad": "Formosa"
+    },
+    {
+      "cod": "1086",
+      "nombre": "Sucursal Formosa Maradona",
+      "provincia": "Formosa",
+      "ciudad": "Formosa"
+    },
+    {
+      "cod": "1074",
+      "nombre": "Sucursal Goya",
+      "provincia": "Corrientes",
+      "ciudad": "Goya"
+    },
+    {
+      "cod": "1051",
+      "nombre": "Sucursal Posadas",
+      "provincia": "Misiones",
+      "ciudad": "Posadas"
+    },
+    {
+      "cod": "1099",
+      "nombre": "Sucursal Posadas II",
+      "provincia": "Misiones",
+      "ciudad": "Posadas"
+    },
+    {
+      "cod": "1058",
+      "nombre": "Sucursal Resistencia",
+      "provincia": "Chaco",
+      "ciudad": "Resistencia"
+    },
+    {
+      "cod": "1098",
+      "nombre": "Sucursal Roque Saenz Peña",
+      "provincia": "Chaco",
+      "ciudad": "Sáenz Peña"
+    }
+  ],
+  "Patagonia": [
+    {
+      "cod": "1022",
+      "nombre": "Sucursal Bariloche",
+      "provincia": "Río Negro",
+      "ciudad": "San Carlos de Bariloche"
+    },
+    {
+      "cod": "1038",
+      "nombre": "Sucursal Cipolletti",
+      "provincia": "Río Negro",
+      "ciudad": "Cipolletti"
+    },
+    {
+      "cod": "1093",
+      "nombre": "Sucursal Comodoro Norte",
+      "provincia": "Chubut",
+      "ciudad": "Comodoro Rivadavia"
+    },
+    {
+      "cod": "1057",
+      "nombre": "Sucursal Comodoro sur",
+      "provincia": "Chubut",
+      "ciudad": "Comodoro Rivadavia"
+    },
+    {
+      "cod": "1115",
+      "nombre": "Sucursal Gral Roca",
+      "provincia": "Río Negro",
+      "ciudad": "General Roca"
+    },
+    {
+      "cod": "1108",
+      "nombre": "Sucursal Madryn",
+      "provincia": "Chubut",
+      "ciudad": "Puerto Madryn"
+    },
+    {
+      "cod": "3608",
+      "nombre": "Sucursal Neuquen",
+      "provincia": "Neuquén",
+      "ciudad": "Neuquén"
+    },
+    {
+      "cod": "1021",
+      "nombre": "Sucursal Neuquen 2",
+      "provincia": "Neuquén",
+      "ciudad": "Neuquén"
+    },
+    {
+      "cod": "1042",
+      "nombre": "Sucursal Trelew",
+      "provincia": "Chubut",
+      "ciudad": "Trelew"
+    },
+    {
+      "cod": "1053",
+      "nombre": "Sucursal Viedma",
+      "provincia": "Río Negro",
+      "ciudad": "Viedma"
+    }
+  ],
+  "Sin asignar": [
+    {
+      "cod": "masonlineprod0095-Couch",
+      "nombre": "Couch",
+      "provincia": "-",
+      "ciudad": ""
+    },
+    {
+      "cod": "masonlineprod0098-Inv-Full-1017",
+      "nombre": "Inv-Full-Tablada",
+      "provincia": "-",
+      "ciudad": ""
+    },
+    {
+      "cod": "masonlineprod0102-1_1",
+      "nombre": "Stock principal",
+      "provincia": "-",
+      "ciudad": ""
+    },
+    {
+      "cod": "masonlineprod0101-1_1",
+      "nombre": "Stock principal",
+      "provincia": "-",
+      "ciudad": ""
+    },
+    {
+      "cod": "masonlineprod0098-1_1",
+      "nombre": "Stock principal",
+      "provincia": "-",
+      "ciudad": ""
+    },
+    {
+      "cod": "masonlineprod0103-1_1",
+      "nombre": "Stock principal",
+      "provincia": "-",
+      "ciudad": ""
+    }
+  ]
+}

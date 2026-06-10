@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Solo usuarios autenticados con email @gdnargentina.com verificado.
+    function permitido() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@gdnargentina[.]com$');
+    }
+    // Config de la app (mapa de regiones). Único documento editable.
+    match /config/{docId} {
+      allow read, write: if permitido();
+    }
+    // Por defecto, nada más.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

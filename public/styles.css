@@ -92,6 +92,65 @@ tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); white-spac
 tbody tr:hover { background: var(--panel); }
 
 /* Loader */
-.loader { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; }
+.loader { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 50; }
 .spinner { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Filtros */
+.filters { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.filters label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
+.filters input { background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 7px 8px; }
+.region-filter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.region-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { background: var(--panel); border: 1px solid var(--border); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+.chip:hover { color: var(--text); }
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+/* Bloques + cards */
+.block-title { margin: 20px 0 10px; font-size: 15px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; }
+.card-val { font-size: 24px; font-weight: 700; }
+.card-lbl { color: var(--muted); font-size: 12px; margin-top: 6px; }
+.card .info { opacity: .4; font-size: 11px; }
+.card:hover .info { opacity: .9; }
+.card-ok .card-val { color: var(--ok); }
+.card-bad .card-val { color: #ff6b6b; }
+.card-drill { cursor: pointer; }
+.card-drill:hover { border-color: var(--accent); }
+
+/* Dos columnas */
+.two-col { display: grid; grid-template-columns: 1fr 2fr; gap: 14px; margin-top: 20px; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.panel h4 { margin: 0 0 12px; font-size: 13px; }
+.kv-list { display: flex; flex-direction: column; gap: 8px; }
+.kv { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.table-wrap.small { max-height: 320px; }
+.pct { color: var(--ok); font-weight: 600; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; z-index: 60; }
+.modal-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 22px; width: min(560px, 92vw); max-height: 80vh; overflow: auto; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; }
+.modal-head h3 { margin: 0; }
+.prom-line { margin: 8px 0 16px; padding: 10px; background: var(--panel-2); border-radius: 8px; font-size: 13px; }
+.age-bars { display: flex; flex-direction: column; gap: 7px; }
+.age-row { display: grid; grid-template-columns: 110px 1fr 56px; align-items: center; gap: 10px; font-size: 13px; }
+.age-lbl { color: var(--muted); }
+.age-bar { background: var(--panel-2); border-radius: 5px; height: 16px; overflow: hidden; }
+.age-bar > span { display: block; height: 100%; background: var(--accent); }
+.age-val { text-align: right; font-weight: 600; }
+
+/* Admin regiones */
+.regions-admin { columns: 2; column-gap: 16px; }
+@media (max-width: 900px) { .regions-admin { columns: 1; } }
+.region-block { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 14px; break-inside: avoid; }
+.region-head { margin-bottom: 8px; }
+.store-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.store-name { flex: 1; }
+.move-sel { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 3px 6px; font-size: 12px; }
+.warn { color: #e8b14b; }
+.ok { color: var(--ok); }
+.view { animation: fade .2s; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }

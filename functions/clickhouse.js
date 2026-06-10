@@ -26,11 +26,7 @@ function getClient() {
     username,
     password,
     database,
-    request_timeout: 60000,
-    clickhouse_settings: {
-      // Lectura analítica: no necesitamos escribir.
-      readonly: "1",
-    },
+    request_timeout: 90000,
   });
 }
 

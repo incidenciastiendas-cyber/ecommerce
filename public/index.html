@@ -7,11 +7,9 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <!-- Barra superior -->
   <header class="topbar">
     <div class="brand">
-      <span class="brand-ai">AI</span>
-      <span class="brand-janis">JANIS</span>
+      <span class="brand-ai">AI</span><span class="brand-janis">JANIS</span>
       <span class="brand-sub">Dashboards · Masonline</span>
     </div>
     <div class="user" id="userBox" hidden>
@@ -20,7 +18,7 @@
     </div>
   </header>
 
-  <!-- Pantalla de login -->
+  <!-- LOGIN -->
   <section id="loginView" class="login-view" hidden>
     <div class="login-card">
       <h1>Dashboards JANIS</h1>
@@ -30,41 +28,92 @@
     </div>
   </section>
 
-  <!-- Dashboard -->
-  <main id="dashboard" class="dashboard" hidden>
+  <!-- APP -->
+  <main id="app" class="app" hidden>
     <aside class="sidebar">
-      <h2>Reportes</h2>
-      <nav id="reportNav" class="report-nav"><!-- se llena dinámico --></nav>
+      <h2>Vistas</h2>
+      <nav class="report-nav">
+        <button class="report-item active" data-view="dashboard">📊 Día de Ayer</button>
+        <button class="report-item" data-view="noEncontrados">🔎 Productos no encontrados</button>
+        <button class="report-item" data-view="regiones">🗺️ Regiones</button>
+      </nav>
     </aside>
 
     <section class="content">
-      <div class="content-header">
-        <div>
-          <h3 id="reportTitle">Productos no encontrados</h3>
-          <p id="reportDesc" class="muted"></p>
-        </div>
-        <div class="controls">
-          <label>Días
-            <input type="number" id="diasInput" min="1" max="30" value="1" />
+      <!-- ░░ VISTA DASHBOARD ░░ -->
+      <div id="viewDashboard" class="view">
+        <div class="filters">
+          <label>Fecha
+            <input type="date" id="fechaInput" />
           </label>
-          <button id="runBtn" class="btn btn-primary">Ejecutar</button>
-          <button id="exportBtn" class="btn btn-ghost" disabled>Exportar CSV</button>
+          <div class="region-filter">
+            <span class="muted">Regiones:</span>
+            <div id="regionChips" class="region-chips"></div>
+          </div>
+          <button id="aplicarBtn" class="btn btn-primary">Aplicar</button>
+        </div>
+
+        <!-- BLOQUE VENTAS -->
+        <h3 class="block-title">💰 Ventas <span class="muted" id="ventasFechaLbl"></span></h3>
+        <div class="cards" id="cardsVentas"></div>
+
+        <!-- BLOQUE GESTIÓN -->
+        <h3 class="block-title">🚚 Gestión del día cerrado <span class="muted">(entrega = fecha)</span></h3>
+        <div class="cards" id="cardsGestion"></div>
+
+        <div class="two-col">
+          <div class="panel">
+            <h4>Canal de entrega</h4>
+            <div id="canalList" class="kv-list"></div>
+          </div>
+          <div class="panel">
+            <h4>Por región / tienda <span class="muted" id="regionTblHint"></span></h4>
+            <div class="table-wrap small">
+              <table id="regionTable"><thead></thead><tbody></tbody></table>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div id="status" class="status muted">Elegí un reporte y ejecutá.</div>
+      <!-- ░░ VISTA PRODUCTOS NO ENCONTRADOS ░░ -->
+      <div id="viewNoEncontrados" class="view" hidden>
+        <div class="filters">
+          <label>Días <input type="number" id="diasInput" min="1" max="30" value="1" /></label>
+          <button id="runNoEnc" class="btn btn-primary">Ejecutar</button>
+          <button id="exportNoEnc" class="btn btn-ghost" disabled>Exportar CSV</button>
+          <span id="noEncStatus" class="muted"></span>
+        </div>
+        <div class="table-wrap">
+          <table id="noEncTable"><thead></thead><tbody></tbody></table>
+        </div>
+      </div>
 
-      <div class="table-wrap">
-        <table id="resultsTable">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
+      <!-- ░░ VISTA REGIONES (admin) ░░ -->
+      <div id="viewRegiones" class="view" hidden>
+        <div class="filters">
+          <button id="addRegionBtn" class="btn btn-ghost">+ Agregar región</button>
+          <button id="saveRegionsBtn" class="btn btn-primary">Guardar cambios</button>
+          <button id="resetRegionsBtn" class="btn btn-ghost">Restaurar default</button>
+          <span id="regionsStatus" class="muted"></span>
+        </div>
+        <div id="regionsAdmin" class="regions-admin"></div>
       </div>
     </section>
   </main>
 
-  <div id="loader" class="loader" hidden><div class="spinner"></div></div>
+  <!-- Modal drill-down -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle">Antigüedad de los pedidos</h3>
+        <button id="modalClose" class="btn btn-ghost">✕</button>
+      </div>
+      <p class="muted" id="modalSubtitle"></p>
+      <div id="modalBody" class="age-bars"></div>
+    </div>
+  </div>
 
+  <div id="loader" class="loader" hidden><div class="spinner"></div></div>
   <script type="module" src="/app.js"></script>
 </body>
 </html>
