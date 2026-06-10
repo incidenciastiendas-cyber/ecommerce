@@ -1,0 +1,37 @@
+# ───────────────────────────────────────────────
+#  SECRETOS — NUNCA commitear (credenciales DB/API/Firebase)
+# ───────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*serviceAccount*.json
+*firebase-adminsdk*.json
+masonline-*.json
+secrets/
+*.pem
+*.key
+
+# ── Dependencias ──
+node_modules/
+functions/node_modules/
+web/node_modules/
+
+# ── Build / output ──
+dist/
+build/
+.next/
+out/
+
+# ── Firebase ──
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*.log
+
+# ── Sistema / editores ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.cache/

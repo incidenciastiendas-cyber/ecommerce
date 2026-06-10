@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JANIS · Dashboards Masonline</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Barra superior -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-ai">AI</span>
+      <span class="brand-janis">JANIS</span>
+      <span class="brand-sub">Dashboards · Masonline</span>
+    </div>
+    <div class="user" id="userBox" hidden>
+      <span id="userEmail" class="user-email"></span>
+      <button id="logoutBtn" class="btn btn-ghost">Salir</button>
+    </div>
+  </header>
+
+  <!-- Pantalla de login -->
+  <section id="loginView" class="login-view" hidden>
+    <div class="login-card">
+      <h1>Dashboards JANIS</h1>
+      <p>Acceso restringido a cuentas <strong>@gdnargentina.com</strong></p>
+      <button id="loginBtn" class="btn btn-primary">Ingresar con Google</button>
+      <p id="loginError" class="error" hidden></p>
+    </div>
+  </section>
+
+  <!-- Dashboard -->
+  <main id="dashboard" class="dashboard" hidden>
+    <aside class="sidebar">
+      <h2>Reportes</h2>
+      <nav id="reportNav" class="report-nav"><!-- se llena dinámico --></nav>
+    </aside>
+
+    <section class="content">
+      <div class="content-header">
+        <div>
+          <h3 id="reportTitle">Productos no encontrados</h3>
+          <p id="reportDesc" class="muted"></p>
+        </div>
+        <div class="controls">
+          <label>Días
+            <input type="number" id="diasInput" min="1" max="30" value="1" />
+          </label>
+          <button id="runBtn" class="btn btn-primary">Ejecutar</button>
+          <button id="exportBtn" class="btn btn-ghost" disabled>Exportar CSV</button>
+        </div>
+      </div>
+
+      <div id="status" class="status muted">Elegí un reporte y ejecutá.</div>
+
+      <div class="table-wrap">
+        <table id="resultsTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="loader" class="loader" hidden><div class="spinner"></div></div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
