@@ -6,12 +6,13 @@
 //  ⚠️ COMPLETAR apiKey y appId (los demás ya están con el proyecto masonline-f2736).
 // ─────────────────────────────────────────────────────────────
 export const firebaseConfig = {
-  apiKey: "TODO_PEGAR_API_KEY",
+  apiKey: "AIzaSyA1FfrzynF8vHhMn1bZvreOjBdl6qMednA",
   authDomain: "masonline-f2736.firebaseapp.com",
   projectId: "masonline-f2736",
-  storageBucket: "masonline-f2736.appspot.com",
-  messagingSenderId: "TODO_PEGAR_SENDER_ID",
-  appId: "TODO_PEGAR_APP_ID",
+  storageBucket: "masonline-f2736.firebasestorage.app",
+  messagingSenderId: "495889936833",
+  appId: "1:495889936833:web:d6e5205a7194d293fabf40",
+  measurementId: "G-B2FP0EFVCK",
 };
 
 // Región de las Cloud Functions (debe coincidir con functions/index.js)

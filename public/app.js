@@ -52,9 +52,8 @@ const GESTION_CARDS = [
 init();
 async function init() {
   await loadIndex();
-  await loadRegions();
-  if (DEMO) startApp("preview (demo)");
-  else setupAuth();
+  if (DEMO) { await loadRegions(); startApp("preview (demo)"); }
+  else setupAuth();   // muestra el login YA; las regiones se cargan al entrar
 }
 
 function startApp(userLabel) {
@@ -71,19 +70,38 @@ function ayerISO() { const d = new Date(); d.setDate(d.getDate() - 1); return d.
 
 // ── Auth (prod) ──
 function setupAuth() {
-  const { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = auth.mod;
+  const { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = auth.mod;
   const provider = new GoogleAuthProvider(); provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
+
+  // Mostrar el login de entrada: si Auth tarda o falla, igual se ve algo (nunca en blanco).
+  el("loginView").hidden = false; el("app").hidden = true; el("userBox").hidden = true;
+
+  const checkDomain = async (user) => {
+    if (user && !(user.email || "").toLowerCase().endsWith("@" + ALLOWED_DOMAIN)) {
+      await signOut(auth.inst); showLoginError(`Solo cuentas @${ALLOWED_DOMAIN}.`); return false;
+    }
+    return !!user;
+  };
+
   el("loginBtn").onclick = async () => {
     el("loginError").hidden = true;
     try {
       const res = await signInWithPopup(auth.inst, provider);
-      if (!(res.user.email || "").toLowerCase().endsWith("@" + ALLOWED_DOMAIN)) { await signOut(auth.inst); showLoginError(`Solo cuentas @${ALLOWED_DOMAIN}.`); }
-    } catch (e) { showLoginError("No se pudo iniciar sesión."); console.error(e); }
+      await checkDomain(res.user);
+    } catch (e) {
+      if (e.code === "auth/popup-blocked" || e.code === "auth/cancelled-popup-request" || e.code === "auth/popup-closed-by-user") {
+        try { await signInWithRedirect(auth.inst, provider); } catch (e2) { showLoginError("No se pudo abrir el login."); }
+      } else { showLoginError("No se pudo iniciar sesión: " + (e.code || e.message)); console.error(e); }
+    }
   };
   el("logoutBtn").onclick = () => signOut(auth.inst);
-  onAuthStateChanged(auth.inst, (user) => {
+
+  // Resultado del redirect (cuando el popup estaba bloqueado)
+  getRedirectResult(auth.inst).then((r) => { if (r?.user) checkDomain(r.user); }).catch(() => {});
+
+  onAuthStateChanged(auth.inst, async (user) => {
     const ok = user && (user.email || "").toLowerCase().endsWith("@" + ALLOWED_DOMAIN);
-    if (ok) startApp(user.email);
+    if (ok) { await loadRegions(); startApp(user.email); }
     else { el("loginView").hidden = false; el("app").hidden = true; el("userBox").hidden = true; }
   });
 }
@@ -257,7 +275,13 @@ async function loadRegions() {
   }
   let saved = null;
   if (DEMO) { try { saved = JSON.parse(localStorage.getItem("regiones") || "null"); } catch {} }
-  else { try { const s = await db.mod.getDoc(db.mod.doc(db.inst, "config", "regiones")); if (s.exists()) saved = s.data().map; } catch (e) { console.warn(e); } }
+  else {
+    try {
+      const getOnce = db.mod.getDoc(db.mod.doc(db.inst, "config", "regiones"));
+      const s = await Promise.race([getOnce, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 4000))]);
+      if (s.exists()) saved = s.data().map;
+    } catch (e) { console.warn("regiones: usando default (", e.message, ")"); }
+  }
   regionMap = saved || defaultMap; rebuildCodeToRegion();
 }
 function rebuildCodeToRegion() { codeToRegion = {}; for (const [r, codes] of Object.entries(regionMap)) codes.forEach((c) => (codeToRegion[c] = r)); }
