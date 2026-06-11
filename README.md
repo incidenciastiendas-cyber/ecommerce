@@ -11,31 +11,36 @@ Sin base de datos propia, sin input de usuario — solo visualización.
 > lee ese snapshot ya calculado (instantáneo y barato).
 
 ```
-GitHub Actions (cron */30)  ──>  etl/build-snapshot.js  ──>  consulta ClickHouse (liviano)
-        │                                                     (quantics.data-lake.janis.in:8443)
-        ▼
-  public/data/snapshot.json  ──>  Firebase Hosting  ──>  Dashboard (lee el snapshot)
-                                        + Firebase Auth (login @gdnargentina.com)
+Bot Python (bot/build_day.py) — un día por corrida, lectura liviana
+   ├─ Cierre  (1 vez/día, cron) → AYER definitivo → public/data/dias/<fecha>.json (se commitea)
+   └─ Intradía (cada 30 min)    → HOY provisorio  → se regenera y deploya
+        ↓                                  (quantics.data-lake.janis.in:8443)
+  public/data/dias/*.json + index.json  ──>  Firebase Hosting  ──>  Dashboard
+                                                   + Firebase Auth (login @gdnargentina.com)
 ```
 
-- El frontend **nunca** toca ClickHouse ni ve credenciales: solo lee el snapshot.
-- El ETL corre **server-side** (GitHub Actions) con las credenciales en GitHub Secrets.
-- **Modo DEMO:** si `public/firebase-config.js` no tiene `apiKey` real, el front saltea el login
-  y muestra el snapshot → permite previsualizar sin deployar.
-- Cloud Functions (`functions/`) quedan como **opción** para consultas en vivo puntuales
-  (ej. "productos no encontrados" detallado). Requieren plan Blaze; el resto es plan gratuito.
+- El frontend **nunca** toca ClickHouse ni ve credenciales: solo lee los JSON por día.
+- El bot corre **server-side** (GitHub Actions) con las credenciales en GitHub Secrets.
+- **1 JSON por día** = archivo histórico navegable (selector de fecha en el dashboard).
+- **Cuota:** el bot lee **un solo día** por corrida; el día cerrado se calcula 1 sola vez.
+- **Modo DEMO:** si `public/firebase-config.js` no tiene `apiKey` real, el front saltea el
+  login y usa `snapshot.json` → permite previsualizar sin deployar.
+- Cloud Functions (`functions/`) quedan **opcionales** para consultas en vivo puntuales
+  (ej. "productos no encontrados"). Requieren plan Blaze; el resto es plan gratuito.
 
 ### 🔑 Secrets de GitHub Actions (repo → Settings → Secrets → Actions)
 | Secret | Valor |
 |---|---|
 | `CLICKHOUSE_USER` | usuario del data lake |
 | `CLICKHOUSE_PASSWORD` | password del data lake |
-| `FIREBASE_SERVICE_ACCOUNT` | contenido del JSON del service account (masonline-f2736) |
+| `FIREBASE_SERVICE_ACCOUNT` | contenido COMPLETO del JSON del service account (masonline-f2736) |
 
-### ▶️ Correr el ETL local
+### ▶️ Correr el bot local
 ```bash
-CH_USER=.. CH_PASS=.. node etl/build-snapshot.js   # genera public/data/snapshot.json
+CH_USER=.. CH_PASS=.. python bot/build_day.py cierre     # ayer (definitivo)
+CH_USER=.. CH_PASS=.. python bot/build_day.py intradia   # hoy
 ```
+Workflows: `.github/workflows/cierre-diario.yml` + `intradia.yml`. Ver `bot/README.md`.
 
 Ver [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) y el mapeo de campos en [docs/DICCIONARIO_DATOS.md](docs/DICCIONARIO_DATOS.md).
 

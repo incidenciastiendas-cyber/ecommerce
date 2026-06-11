@@ -1,0 +1,38 @@
+name: Intradía (día en curso = hoy)
+
+# Actualiza el día EN CURSO (hoy) cada 30 min. NO commitea (es provisorio):
+# solo regenera hoy.json y deploya. El día se vuelve definitivo en el cierre.
+
+on:
+  schedule:
+    - cron: "*/30 10-23 * * *"   # cada 30 min, ~07-20 AR. Achicar si la cuota aprieta.
+  workflow_dispatch: {}
+
+concurrency:
+  group: etl-janis              # mismo grupo que el cierre: nunca se solapan
+  cancel-in-progress: false
+
+jobs:
+  intradia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Generar día en curso (hoy)
+        env:
+          CLICKHOUSE_HOST: quantics.data-lake.janis.in
+          CLICKHOUSE_PORT: "8443"
+          CLICKHOUSE_SCHEMA: janis_datawarehouse_masonline
+          CH_USER: ${{ secrets.CLICKHOUSE_USER }}
+          CH_PASS: ${{ secrets.CLICKHOUSE_PASSWORD }}
+        run: python bot/build_day.py intradia
+
+      - name: Deploy a Firebase Hosting (sin commit)
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: masonline-f2736
+          channelId: live

@@ -1,0 +1,49 @@
+name: Cierre diario (día cerrado = ayer)
+
+# Corre 1 vez por día, tras el reset de cuota / cierre del día.
+# Calcula AYER (definitivo), lo COMMITEA al repo (archivo histórico) y deploya.
+
+on:
+  schedule:
+    - cron: "0 5 * * *"     # 05:00 UTC (~02:00 AR). Ajustar al reset de cuota.
+  workflow_dispatch: {}
+
+concurrency:
+  group: etl-janis          # comparte grupo con intradía: no se solapan (cuida la cuota)
+  cancel-in-progress: false
+
+permissions:
+  contents: write           # para commitear el JSON del día
+
+jobs:
+  cierre:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      - name: Generar día cerrado (ayer)
+        env:
+          CLICKHOUSE_HOST: quantics.data-lake.janis.in
+          CLICKHOUSE_PORT: "8443"
+          CLICKHOUSE_SCHEMA: janis_datawarehouse_masonline
+          CH_USER: ${{ secrets.CLICKHOUSE_USER }}
+          CH_PASS: ${{ secrets.CLICKHOUSE_PASSWORD }}
+        run: python bot/build_day.py cierre
+
+      - name: Archivar el día en el repo
+        run: |
+          git config user.name "janis-bot"
+          git config user.email "bot@gdnargentina.com"
+          git add public/data/dias/*.json public/data/index.json
+          git commit -m "data: cierre diario [skip ci]" || echo "sin cambios"
+          git push || echo "nada que pushear"
+
+      - name: Deploy a Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: masonline-f2736
+          channelId: live
