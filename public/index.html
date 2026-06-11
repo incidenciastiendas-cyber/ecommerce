@@ -3,14 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JANIS · Dashboards Masonline</title>
+  <title>Panel de Control · MásOnline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <span class="brand-ai">AI</span><span class="brand-janis">JANIS</span>
-      <span class="brand-sub">Dashboards · Masonline</span>
+    <div class="topbar-left">
+      <button id="collapseBtn" class="icon-btn" title="Contraer menú">☰</button>
+      <div class="brand">
+        <span class="brand-logo">M</span>
+        <div class="brand-txt">
+          <span class="brand-name">Panel de Control</span>
+          <span class="brand-sub">MásOnline</span>
+        </div>
+      </div>
     </div>
     <div class="user" id="userBox" hidden>
       <span id="userEmail" class="user-email"></span>
@@ -21,7 +30,8 @@
   <!-- LOGIN -->
   <section id="loginView" class="login-view" hidden>
     <div class="login-card">
-      <h1>Dashboards JANIS</h1>
+      <span class="brand-logo lg">M</span>
+      <h1>Panel de Control</h1>
       <p>Acceso restringido a cuentas <strong>@gdnargentina.com</strong></p>
       <button id="loginBtn" class="btn btn-primary">Ingresar con Google</button>
       <p id="loginError" class="error" hidden></p>
@@ -31,64 +41,56 @@
   <!-- APP -->
   <main id="app" class="app" hidden>
     <aside class="sidebar">
-      <h2>Vistas</h2>
       <nav class="report-nav">
-        <button class="report-item active" data-view="dashboard">📊 Día de Ayer</button>
-        <button class="report-item" data-view="noEncontrados">🔎 Productos no encontrados</button>
-        <button class="report-item" data-view="regiones">🗺️ Regiones</button>
+        <button class="report-item active" data-view="dashboard"><span class="ic">📊</span><span class="lbl">Día de Ayer</span></button>
+        <button class="report-item" data-view="controlTienda"><span class="ic">🏪</span><span class="lbl">Control por tienda</span></button>
+        <button class="report-item" data-view="noEncontrados"><span class="ic">🔎</span><span class="lbl">No encontrados</span></button>
+        <button class="report-item" data-view="regiones"><span class="ic">🗺️</span><span class="lbl">Regiones</span></button>
       </nav>
     </aside>
 
     <section class="content">
-      <!-- ░░ VISTA DASHBOARD ░░ -->
+      <!-- ░░ DASHBOARD ░░ -->
       <div id="viewDashboard" class="view">
         <div class="filters">
-          <label>Fecha
-            <input type="date" id="fechaInput" />
-          </label>
-          <div class="region-filter">
-            <span class="muted">Regiones:</span>
-            <div id="regionChips" class="region-chips"></div>
-          </div>
+          <label>Fecha <input type="date" id="fechaInput" /></label>
+          <div class="region-filter"><span class="muted">Regiones:</span><div id="regionChips" class="region-chips"></div></div>
           <button id="aplicarBtn" class="btn btn-primary">Aplicar</button>
         </div>
-
-        <!-- BLOQUE VENTAS -->
-        <h3 class="block-title">💰 Ventas <span class="muted" id="ventasFechaLbl"></span></h3>
+        <h3 class="block-title">Ventas <span class="muted" id="ventasFechaLbl"></span></h3>
         <div class="cards" id="cardsVentas"></div>
-
-        <!-- BLOQUE GESTIÓN -->
-        <h3 class="block-title">🚚 Gestión del día cerrado <span class="muted">(entrega = fecha)</span></h3>
+        <h3 class="block-title">Gestión del día cerrado <span class="muted">(entrega = fecha)</span></h3>
         <div class="cards" id="cardsGestion"></div>
-
         <div class="two-col">
-          <div class="panel">
-            <h4>Canal de entrega</h4>
-            <div id="canalList" class="kv-list"></div>
-          </div>
-          <div class="panel">
-            <h4>Por región / tienda <span class="muted" id="regionTblHint"></span></h4>
-            <div class="table-wrap small">
-              <table id="regionTable"><thead></thead><tbody></tbody></table>
-            </div>
+          <div class="panel"><h4>Canal de entrega</h4><div id="canalList" class="kv-list"></div></div>
+          <div class="panel"><h4>Por región <span class="muted" id="regionTblHint"></span></h4>
+            <div class="table-wrap small"><table id="regionTable"><thead></thead><tbody></tbody></table></div>
           </div>
         </div>
       </div>
 
-      <!-- ░░ VISTA PRODUCTOS NO ENCONTRADOS ░░ -->
+      <!-- ░░ CONTROL POR TIENDA ░░ -->
+      <div id="viewControlTienda" class="view" hidden>
+        <div class="filters">
+          <label>Fecha <input type="date" id="fechaInputCT" /></label>
+          <div class="region-filter"><span class="muted">Regiones:</span><div id="regionChipsCT" class="region-chips"></div></div>
+          <span class="muted" id="ctResumen"></span>
+        </div>
+        <p class="muted ct-leyenda">Ordenado por cumplimiento: las tiendas <b class="bad-t">peor</b> arriba (rojo), las <b class="ok-t">mejor</b> abajo (verde).</p>
+        <div class="table-wrap"><table id="controlTable"><thead></thead><tbody></tbody></table></div>
+      </div>
+
+      <!-- ░░ NO ENCONTRADOS ░░ -->
       <div id="viewNoEncontrados" class="view" hidden>
         <div class="filters">
           <label>Días <input type="number" id="diasInput" min="1" max="30" value="1" /></label>
           <button id="runNoEnc" class="btn btn-primary">Ejecutar</button>
-          <button id="exportNoEnc" class="btn btn-ghost" disabled>Exportar CSV</button>
           <span id="noEncStatus" class="muted"></span>
         </div>
-        <div class="table-wrap">
-          <table id="noEncTable"><thead></thead><tbody></tbody></table>
-        </div>
+        <div class="table-wrap"><table id="noEncTable"><thead></thead><tbody></tbody></table></div>
       </div>
 
-      <!-- ░░ VISTA REGIONES (admin) ░░ -->
+      <!-- ░░ REGIONES ░░ -->
       <div id="viewRegiones" class="view" hidden>
         <div class="filters">
           <button id="addRegionBtn" class="btn btn-ghost">+ Agregar región</button>
@@ -101,13 +103,9 @@
     </section>
   </main>
 
-  <!-- Modal drill-down -->
   <div id="modal" class="modal" hidden>
     <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="modalTitle">Antigüedad de los pedidos</h3>
-        <button id="modalClose" class="btn btn-ghost">✕</button>
-      </div>
+      <div class="modal-head"><h3 id="modalTitle">Antigüedad de los pedidos</h3><button id="modalClose" class="icon-btn">✕</button></div>
       <p class="muted" id="modalSubtitle"></p>
       <div id="modalBody" class="age-bars"></div>
     </div>

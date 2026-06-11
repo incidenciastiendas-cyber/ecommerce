@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────
-//  Dashboards JANIS — frontend
-//  Lee 1 JSON por día (public/data/dias/<fecha>.json) listado en index.json,
-//  que produce el bot Python (cierre diario + intradía). NO consulta en vivo.
-//  Modo DEMO (sin Firebase): saltea login y usa snapshot.json para previsualizar.
+//  Panel de Control · MásOnline — frontend
+//  Lee 1 JSON por día (public/data/dias/<fecha>.json + index.json) que produce
+//  el bot Python. NO consulta en vivo. Modo DEMO sin Firebase para previsualizar.
 // ─────────────────────────────────────────────────────────────
 import { firebaseConfig, FUNCTIONS_REGION, ALLOWED_DOMAIN } from "/firebase-config.js";
 
@@ -25,16 +24,13 @@ const loader = el("loader");
 const moneyFmt = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
 const numFmt = new Intl.NumberFormat("es-AR");
 
-// Estado
-let SOURCE = "demo";       // "dias" | "demo"
-let DIAS = [];             // fechas disponibles (desc)
-let demoSnap = null;       // snapshot.json (modo demo)
-let dayData = { ventas: {}, gestion: {} }; // datos del día actual (por tienda)
+let SOURCE = "demo", DIAS = [], demoSnap = null;
+let dashDay = { ventas: {}, gestion: {} };
 let storeCatalog = {}, regionMap = {}, codeToRegion = {}, selectedRegions = new Set();
 
 const VENTAS_CARDS = [
   { key: "venta", label: "Vendido (cerrado)", money: true, tip: "Σ orders.total_amount de pedidos creados en la fecha." },
-  { key: "pedidos", label: "Pedidos", tip: "Cantidad de pedidos creados en la fecha." },
+  { key: "pedidos", label: "Pedidos", tip: "Pedidos creados en la fecha." },
   { key: "skus", label: "SKUs distintos", tip: "uniqExact(order_items.sku_commerce_id) en la fecha." },
   { key: "ticket", label: "Ticket promedio", money: true, tip: "venta / pedidos." },
   { key: "horas", label: "Prom. horas a entrega", suffix: " hs", tip: "avg horas creación→entrega real (order_steps delivery finished)." },
@@ -53,19 +49,20 @@ init();
 async function init() {
   await loadIndex();
   if (DEMO) { await loadRegions(); startApp("preview (demo)"); }
-  else setupAuth();   // muestra el login YA; las regiones se cargan al entrar
+  else setupAuth();
 }
+
+// Contraer/expandir menú
+el("collapseBtn").onclick = () => el("app").classList.toggle("collapsed");
 
 function startApp(userLabel) {
   el("loginView").hidden = true; el("app").hidden = false; el("userBox").hidden = false;
   el("userEmail").textContent = userLabel + (SOURCE === "demo" ? " · datos de muestra" : "");
-  const f = el("fechaInput");
-  // Default = último día CERRADO (no el de hoy en curso)
   const hoyISO = new Date().toISOString().slice(0, 10);
-  const cerrado = DIAS.find((d) => d < hoyISO);
-  f.value = cerrado || DIAS[0] || ayerISO();
-  if (DIAS.length) f.max = DIAS[0];
-  f.onchange = runDashboard;
+  const cerrado = DIAS.find((d) => d < hoyISO) || DIAS[0] || ayerISO();
+  for (const id of ["fechaInput", "fechaInputCT"]) { const f = el(id); f.value = cerrado; if (DIAS.length) f.max = DIAS[0]; }
+  el("fechaInput").onchange = runDashboard;
+  el("fechaInputCT").onchange = renderControlTienda;
   renderRegionChips();
   runDashboard();
 }
@@ -75,33 +72,22 @@ function ayerISO() { const d = new Date(); d.setDate(d.getDate() - 1); return d.
 function setupAuth() {
   const { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = auth.mod;
   const provider = new GoogleAuthProvider(); provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
-
-  // Mostrar el login de entrada: si Auth tarda o falla, igual se ve algo (nunca en blanco).
   el("loginView").hidden = false; el("app").hidden = true; el("userBox").hidden = true;
-
   const checkDomain = async (user) => {
-    if (user && !(user.email || "").toLowerCase().endsWith("@" + ALLOWED_DOMAIN)) {
-      await signOut(auth.inst); showLoginError(`Solo cuentas @${ALLOWED_DOMAIN}.`); return false;
-    }
+    if (user && !(user.email || "").toLowerCase().endsWith("@" + ALLOWED_DOMAIN)) { await signOut(auth.inst); showLoginError(`Solo cuentas @${ALLOWED_DOMAIN}.`); return false; }
     return !!user;
   };
-
   el("loginBtn").onclick = async () => {
     el("loginError").hidden = true;
-    try {
-      const res = await signInWithPopup(auth.inst, provider);
-      await checkDomain(res.user);
-    } catch (e) {
-      if (e.code === "auth/popup-blocked" || e.code === "auth/cancelled-popup-request" || e.code === "auth/popup-closed-by-user") {
-        try { await signInWithRedirect(auth.inst, provider); } catch (e2) { showLoginError("No se pudo abrir el login."); }
+    try { const res = await signInWithPopup(auth.inst, provider); await checkDomain(res.user); }
+    catch (e) {
+      if (["auth/popup-blocked", "auth/cancelled-popup-request", "auth/popup-closed-by-user"].includes(e.code)) {
+        try { await signInWithRedirect(auth.inst, provider); } catch { showLoginError("No se pudo abrir el login."); }
       } else { showLoginError("No se pudo iniciar sesión: " + (e.code || e.message)); console.error(e); }
     }
   };
   el("logoutBtn").onclick = () => signOut(auth.inst);
-
-  // Resultado del redirect (cuando el popup estaba bloqueado)
   getRedirectResult(auth.inst).then((r) => { if (r?.user) checkDomain(r.user); }).catch(() => {});
-
   onAuthStateChanged(auth.inst, async (user) => {
     const ok = user && (user.email || "").toLowerCase().endsWith("@" + ALLOWED_DOMAIN);
     if (ok) { await loadRegions(); startApp(user.email); }
@@ -117,13 +103,19 @@ document.querySelectorAll(".report-item").forEach((b) => {
     b.classList.add("active");
     const v = b.dataset.view;
     el("viewDashboard").hidden = v !== "dashboard";
+    el("viewControlTienda").hidden = v !== "controlTienda";
     el("viewNoEncontrados").hidden = v !== "noEncontrados";
     el("viewRegiones").hidden = v !== "regiones";
+    if (v === "controlTienda") renderControlTienda();
     if (v === "regiones") renderRegionsAdmin();
   };
 });
+function refreshActive() {
+  if (!el("viewDashboard").hidden) runDashboard();
+  if (!el("viewControlTienda").hidden) renderControlTienda();
+}
 
-// ── Carga de datos (índice + día) ──
+// ── Datos ──
 async function loadIndex() {
   try {
     const idx = await fetch("/data/index.json").then((r) => { if (!r.ok) throw new Error("no index"); return r.json(); });
@@ -136,10 +128,9 @@ async function loadIndex() {
 async function loadDay(fecha) {
   if (SOURCE === "dias") {
     const d = await fetch(`/data/dias/${fecha}.json`).then((r) => { if (!r.ok) throw new Error("404"); return r.json(); }).catch(() => ({ ventas: {}, gestion: {} }));
-    dayData = { ventas: d.ventas || {}, gestion: d.gestion || {} };
-  } else {
-    dayData = { ventas: (demoSnap.ventas || {})[fecha] || {}, gestion: (demoSnap.gestion || {})[fecha] || {} };
+    return { ventas: d.ventas || {}, gestion: d.gestion || {} };
   }
+  return { ventas: (demoSnap.ventas || {})[fecha] || {}, gestion: (demoSnap.gestion || {})[fecha] || {} };
 }
 
 function codigosSeleccionados() {
@@ -148,8 +139,6 @@ function codigosSeleccionados() {
   return set;
 }
 const incluir = (cod, codes) => codes === null ? true : codes.has(cod);
-
-// Suma los buckets (por tienda) de un objeto {cod:{...}} con filtro de región
 function aggBuckets(buckets, codes) {
   const acc = {};
   for (const [cod, b] of Object.entries(buckets || {})) {
@@ -164,28 +153,24 @@ function aggBuckets(buckets, codes) {
 
 // ── Dashboard ──
 el("aplicarBtn").onclick = runDashboard;
-
 async function runDashboard() {
   const fecha = el("fechaInput").value || ayerISO();
   const codes = codigosSeleccionados();
   loader.hidden = false;
   try {
-    await loadDay(fecha);
+    dashDay = await loadDay(fecha);
     el("ventasFechaLbl").textContent = `(creados el ${fecha})`;
     el("regionTblHint").textContent = selectedRegions.size ? `· ${[...selectedRegions].join(", ")}` : "· todas";
-
-    const v = aggBuckets(dayData.ventas, codes);
-    const ventasVacio = !v.pedidos && codes;
+    const v = aggBuckets(dashDay.ventas, codes);
+    const vacio = !v.pedidos && codes;
     const ventasRow = { venta: v.venta || 0, pedidos: v.pedidos || 0, skus: v.skus || 0, ticket: v.pedidos ? Math.round(v.venta / v.pedidos) : 0, horas: v.horas_cnt ? +(v.horas_sum / v.horas_cnt).toFixed(1) : null };
-    renderCards("cardsVentas", VENTAS_CARDS, ventasVacio ? {} : ventasRow);
-    if (ventasVacio) el("ventasFechaLbl").textContent += " · (sin desglose por región en este día)";
-
-    const g = aggBuckets(dayData.gestion, codes);
+    renderCards("cardsVentas", VENTAS_CARDS, vacio ? {} : ventasRow);
+    if (vacio) el("ventasFechaLbl").textContent += " · (sin desglose por región en este día)";
+    const g = aggBuckets(dashDay.gestion, codes);
     renderCards("cardsGestion", GESTION_CARDS, g, fecha, codes);
     renderCanal(g.canal || {});
     renderRegionTable();
-  } catch (e) { console.error(e); }
-  finally { loader.hidden = true; }
+  } catch (e) { console.error(e); } finally { loader.hidden = true; }
 }
 
 function renderCards(containerId, defs, row, fecha, codes) {
@@ -201,52 +186,74 @@ function renderCards(containerId, defs, row, fecha, codes) {
     c.appendChild(card);
   });
 }
-
 function renderCanal(canal) {
   const c = el("canalList"); const entries = Object.entries(canal);
   if (!entries.length) { c.innerHTML = '<span class="muted">Sin datos</span>'; return; }
   const total = entries.reduce((a, [, n]) => a + n, 0);
-  c.innerHTML = entries.sort((a, b) => b[1] - a[1]).map(([k, n]) => {
-    const pct = total ? Math.round((100 * n) / total) : 0;
-    return `<div class="kv"><span>${k}</span><span><b>${numFmt.format(n)}</b> <span class="muted">${pct}%</span></span></div>`;
-  }).join("");
+  c.innerHTML = entries.sort((a, b) => b[1] - a[1]).map(([k, n]) => `<div class="kv"><span>${k}</span><span><b>${numFmt.format(n)}</b> <span class="muted">${total ? Math.round(100 * n / total) : 0}%</span></span></div>`).join("");
 }
-
 function renderRegionTable() {
   const agg = {};
-  for (const [cod, b] of Object.entries(dayData.gestion || {})) {
+  for (const [cod, b] of Object.entries(dashDay.gestion || {})) {
     const reg = codeToRegion[cod] || (String(cod).startsWith("__") ? "Otras" : "Sin asignar");
     const a = (agg[reg] = agg[reg] || { total: 0, entregado: 0, pendiente: 0, cancelado: 0 });
     a.total += b.total || 0; a.entregado += b.entregado || 0; a.pendiente += b.pendiente || 0; a.cancelado += b.cancelado || 0;
   }
   const thead = document.querySelector("#regionTable thead"), tbody = document.querySelector("#regionTable tbody");
   thead.innerHTML = "<tr><th>Región</th><th>Total</th><th>Entregado</th><th>% Entreg.</th><th>Pend.</th><th>Canc.</th></tr>";
-  const rows = Object.entries(agg).sort((a, b) => b[1].total - a[1].total);
-  tbody.innerHTML = rows.map(([reg, a]) => {
-    const pct = a.total ? Math.round((100 * a.entregado) / a.total) : 0;
+  tbody.innerHTML = Object.entries(agg).sort((a, b) => b[1].total - a[1].total).map(([reg, a]) => {
+    const pct = a.total ? Math.round(100 * a.entregado / a.total) : 0;
     return `<tr><td>${reg}</td><td>${numFmt.format(a.total)}</td><td>${numFmt.format(a.entregado)}</td><td><span class="pct">${pct}%</span></td><td>${numFmt.format(a.pendiente)}</td><td>${numFmt.format(a.cancelado)}</td></tr>`;
   }).join("") || '<tr><td class="muted">Sin datos</td></tr>';
 }
 
-// ── Drill-down antigüedad ──
+// ── Control por tienda (ranking rojo→verde) ──
+const nivel = (cumpl) => cumpl < 0.75 ? "bad" : cumpl < 0.9 ? "warn" : "ok";
+async function renderControlTienda() {
+  const fecha = el("fechaInputCT").value || el("fechaInput").value || ayerISO();
+  const codes = codigosSeleccionados();
+  loader.hidden = false;
+  try {
+    const day = await loadDay(fecha);
+    const rows = [];
+    for (const [cod, b] of Object.entries(day.gestion || {})) {
+      if (String(cod).startsWith("?") || String(cod).startsWith("__")) continue;
+      if (!incluir(cod, codes)) continue;
+      const total = b.total || 0, ent = b.entregado || 0, pend = b.pendiente || 0, enT = b.en_tiempo || 0, canc = b.cancelado || 0;
+      rows.push({ cod, nombre: storeCatalog[cod]?.nombre || cod, region: codeToRegion[cod] || "Sin asignar", total, ent, pend, enT, canc, cumpl: total ? ent / total : 0, ontime: ent ? enT / ent : null });
+    }
+    rows.sort((a, b) => a.cumpl - b.cumpl || b.pend - a.pend); // peores (rojo) arriba
+    const badN = rows.filter((r) => nivel(r.cumpl) === "bad").length;
+    el("ctResumen").textContent = `${rows.length} tiendas · ${badN} atrasadas · fecha ${fecha}`;
+    const thead = document.querySelector("#controlTable thead"), tbody = document.querySelector("#controlTable tbody");
+    thead.innerHTML = "<tr><th>Tienda</th><th>Región</th><th>Entregas</th><th>Entregado</th><th>Pendiente</th><th>En tiempo</th><th>% Cumplido</th><th>Estado</th></tr>";
+    tbody.innerHTML = rows.map((r) => {
+      const l = nivel(r.cumpl), pc = Math.round(r.cumpl * 100);
+      const ot = r.ontime == null ? "" : ` (${Math.round(r.ontime * 100)}%)`;
+      const badge = l === "bad" ? "Atrasada" : l === "warn" ? "En riesgo" : "OK";
+      return `<tr class="lvl-${l}"><td><b>${esc(r.nombre)}</b> <span class="muted">${r.cod}</span></td><td>${r.region}</td><td>${numFmt.format(r.total)}</td><td>${numFmt.format(r.ent)}</td><td>${numFmt.format(r.pend)}</td><td>${r.enT ? numFmt.format(r.enT) + ot : "—"}</td><td><b>${pc}%</b></td><td><span class="badge ${l}">${badge}</span></td></tr>`;
+    }).join("") || '<tr><td class="muted">Sin datos para esta selección.</td></tr>';
+  } catch (e) { console.error(e); } finally { loader.hidden = true; }
+}
+
+// ── Drill antigüedad ──
 function openDrill(fecha, codes) {
   el("modal").hidden = false;
   el("modalSubtitle").textContent = `Pedidos con entrega = ${fecha}: ¿cuándo se crearon?`;
-  const g = aggBuckets(dayData.gestion, codes);
+  const g = aggBuckets(dashDay.gestion, codes);
   const entries = Object.entries(g.antig || {}).map(([d, n]) => [Number(d), n]).sort((a, b) => a[0] - b[0]);
   if (!entries.length) { el("modalBody").innerHTML = '<div class="muted">Sin desglose para esta selección.</div>'; return; }
   const total = entries.reduce((a, [, n]) => a + n, 0);
   const prom = total ? entries.reduce((a, [d, n]) => a + d * n, 0) / total : 0;
   const max = Math.max(1, ...entries.map(([, n]) => n));
   const lbl = (d) => d === 0 ? "Mismo día" : d === 1 ? "1 día antes" : `${d} días antes`;
-  el("modalBody").innerHTML =
-    `<div class="prom-line">Promedio de antigüedad: <b>${prom.toFixed(1)} días</b> (≈ ${Math.round(prom * 24)} h) · Total ${numFmt.format(total)}</div>` +
-    entries.map(([d, n]) => `<div class="age-row"><span class="age-lbl">${lbl(d)}</span><span class="age-bar"><span style="width:${Math.round((100 * n) / max)}%"></span></span><span class="age-val">${numFmt.format(n)}</span></div>`).join("");
+  el("modalBody").innerHTML = `<div class="prom-line">Promedio de antigüedad: <b>${prom.toFixed(1)} días</b> (≈ ${Math.round(prom * 24)} h) · Total ${numFmt.format(total)}</div>` +
+    entries.map(([d, n]) => `<div class="age-row"><span class="age-lbl">${lbl(d)}</span><span class="age-bar"><span style="width:${Math.round(100 * n / max)}%"></span></span><span class="age-val">${numFmt.format(n)}</span></div>`).join("");
 }
 el("modalClose").onclick = () => (el("modal").hidden = true);
 el("modal").onclick = (e) => { if (e.target === el("modal")) el("modal").hidden = true; };
 
-// ── Productos no encontrados (requiere backend en vivo) ──
+// ── No encontrados ──
 el("runNoEnc").onclick = async () => {
   if (DEMO) { el("noEncStatus").textContent = "Disponible con el backend deployado (consulta en vivo)."; return; }
   loader.hidden = false; el("noEncStatus").textContent = "Consultando…";
@@ -256,8 +263,7 @@ el("runNoEnc").onclick = async () => {
     const { data } = await run({ queryId: "productos_no_encontrados", params: { dias: Number(el("diasInput").value) || 1 } });
     renderGenericTable("noEncTable", data.rows || []);
     el("noEncStatus").textContent = `${(data.rows || []).length} filas.`;
-  } catch (e) { el("noEncStatus").textContent = "Error: " + (e.message || e); }
-  finally { loader.hidden = true; }
+  } catch (e) { el("noEncStatus").textContent = "Error: " + (e.message || e); } finally { loader.hidden = true; }
 };
 function renderGenericTable(tableId, rows) {
   const thead = document.querySelector(`#${tableId} thead`), tbody = document.querySelector(`#${tableId} tbody`);
@@ -268,7 +274,7 @@ function renderGenericTable(tableId, rows) {
 }
 function esc(v) { return v == null ? "" : String(v).replace(/[<>&]/g, (m) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[m])); }
 
-// ── Regiones (seed + persistencia) ──
+// ── Regiones ──
 async function loadRegions() {
   const seed = await fetch("/data/regiones-default.json").then((r) => r.json()).catch(() => ({}));
   storeCatalog = {}; const defaultMap = {};
@@ -290,18 +296,20 @@ async function loadRegions() {
 function rebuildCodeToRegion() { codeToRegion = {}; for (const [r, codes] of Object.entries(regionMap)) codes.forEach((c) => (codeToRegion[c] = r)); }
 
 function renderRegionChips() {
-  const cont = el("regionChips"); cont.innerHTML = "";
-  const all = document.createElement("button");
-  all.className = "chip" + (selectedRegions.size === 0 ? " on" : ""); all.textContent = "Todas";
-  all.onclick = () => { selectedRegions.clear(); renderRegionChips(); runDashboard(); };
-  cont.appendChild(all);
-  Object.keys(regionMap).sort().forEach((r) => {
-    const c = document.createElement("button");
-    c.className = "chip" + (selectedRegions.has(r) ? " on" : "");
-    c.textContent = `${r} (${(regionMap[r] || []).length})`;
-    c.onclick = () => { selectedRegions.has(r) ? selectedRegions.delete(r) : selectedRegions.add(r); renderRegionChips(); runDashboard(); };
-    cont.appendChild(c);
-  });
+  for (const contId of ["regionChips", "regionChipsCT"]) {
+    const cont = el(contId); if (!cont) continue; cont.innerHTML = "";
+    const all = document.createElement("button");
+    all.className = "chip" + (selectedRegions.size === 0 ? " on" : ""); all.textContent = "Todas";
+    all.onclick = () => { selectedRegions.clear(); renderRegionChips(); refreshActive(); };
+    cont.appendChild(all);
+    Object.keys(regionMap).sort().forEach((r) => {
+      const c = document.createElement("button");
+      c.className = "chip" + (selectedRegions.has(r) ? " on" : "");
+      c.textContent = `${r} (${(regionMap[r] || []).length})`;
+      c.onclick = () => { selectedRegions.has(r) ? selectedRegions.delete(r) : selectedRegions.add(r); renderRegionChips(); refreshActive(); };
+      cont.appendChild(c);
+    });
+  }
 }
 
 function renderRegionsAdmin() {

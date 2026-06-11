@@ -83,11 +83,13 @@ def build(fecha):
 
     # ── GESTIÓN (entrega programada = fecha) ──
     for r in q(f"""WITH {LOCMAP},
-        base AS (SELECT order_id oid, argMax(status_code,date_modified) estado, argMax(shipping_location_id,date_modified) sloc
+        base AS (SELECT order_id oid, argMax(status_code,date_modified) estado, argMax(shipping_location_id,date_modified) sloc,
+                        argMax(delivered_on_time,date_modified) ot
                  FROM {DB}.orders WHERE toDate(delivery_sla_end)={F} AND date_created >= {F}-25 AND date_created <= {F}+2 GROUP BY order_id),
         inv AS (SELECT DISTINCT order_id FROM {DB}.order_invoices WHERE date_created >= {F}-25)
         SELECT loc.cod cod, count() total,
           countIf(estado='delivered') entregado,
+          countIf(estado='delivered' AND ot) en_tiempo,
           countIf(estado='canceled' OR estado='cancelationRequested') cancelado,
           countIf(estado='notDelivered') no_entregado,
           countIf(estado='needsRescheduling') postergado,
@@ -95,7 +97,7 @@ def build(fecha):
           countIf(inv.order_id != '') facturado
         FROM base LEFT JOIN locmap loc ON loc.location_id=base.sloc LEFT JOIN inv ON inv.order_id=base.oid GROUP BY cod"""):
         c = out["gestion"].setdefault(r["cod"] or "?", {})
-        for k in ("total", "entregado", "cancelado", "no_entregado", "postergado", "pendiente", "facturado"):
+        for k in ("total", "entregado", "en_tiempo", "cancelado", "no_entregado", "postergado", "pendiente", "facturado"):
             c[k] = int(r[k])
 
     for r in q(f"""WITH {LOCMAP},
