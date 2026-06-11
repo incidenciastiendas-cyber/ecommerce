@@ -52,7 +52,7 @@ def server_date(offset_days=0):
 def build(fecha):
     assert re.match(r"^\d{4}-\d{2}-\d{2}$", fecha), "fecha inválida"
     F = f"toDate('{fecha}')"
-    out = {"fecha": fecha, "generatedAt": datetime.datetime.utcnow().isoformat() + "Z",
+    out = {"fecha": fecha, "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
            "ventas": {}, "gestion": {}}
 
     def ven(cod): out["ventas"].setdefault(cod or "?", {})
@@ -120,7 +120,7 @@ def save(out):
     # index.json (días disponibles a partir de los archivos)
     dias = sorted({p.stem for p in DIAS_DIR.glob("*.json")}, reverse=True)
     idx = {"dias": dias, "latest": dias[0] if dias else None,
-           "generatedAt": datetime.datetime.utcnow().isoformat() + "Z"}
+           "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat()}
     (DATA_DIR / "index.json").write_text(json.dumps(idx, ensure_ascii=False), encoding="utf-8")
     print(f"OK -> dias/{out['fecha']}.json  (tiendas ventas={len(out['ventas'])}, gestion={len(out['gestion'])})  index: {len(dias)} días")
 

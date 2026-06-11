@@ -60,7 +60,10 @@ function startApp(userLabel) {
   el("loginView").hidden = true; el("app").hidden = false; el("userBox").hidden = false;
   el("userEmail").textContent = userLabel + (SOURCE === "demo" ? " · datos de muestra" : "");
   const f = el("fechaInput");
-  f.value = DIAS[0] || ayerISO();
+  // Default = último día CERRADO (no el de hoy en curso)
+  const hoyISO = new Date().toISOString().slice(0, 10);
+  const cerrado = DIAS.find((d) => d < hoyISO);
+  f.value = cerrado || DIAS[0] || ayerISO();
   if (DIAS.length) f.max = DIAS[0];
   f.onchange = runDashboard;
   renderRegionChips();
