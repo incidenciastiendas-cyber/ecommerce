@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -15,19 +16,15 @@
       <button id="collapseBtn" class="icon-btn" title="Contraer menú">☰</button>
       <div class="brand">
         <span class="brand-logo">M</span>
-        <div class="brand-txt">
-          <span class="brand-name">Panel de Control</span>
-          <span class="brand-sub">MásOnline</span>
-        </div>
+        <div class="brand-txt"><span class="brand-name">Panel de Control</span><span class="brand-sub">MásOnline · E-Commerce</span></div>
       </div>
     </div>
-    <div class="user" id="userBox" hidden>
-      <span id="userEmail" class="user-email"></span>
-      <button id="logoutBtn" class="btn btn-ghost">Salir</button>
+    <div class="topbar-right">
+      <span id="semanaLbl" class="semana-lbl"></span>
+      <div class="user" id="userBox" hidden><span id="userEmail" class="user-email"></span><button id="logoutBtn" class="btn btn-ghost">Salir</button></div>
     </div>
   </header>
 
-  <!-- LOGIN -->
   <section id="loginView" class="login-view" hidden>
     <div class="login-card">
       <span class="brand-logo lg">M</span>
@@ -38,78 +35,60 @@
     </div>
   </section>
 
-  <!-- APP -->
   <main id="app" class="app" hidden>
     <aside class="sidebar">
       <nav class="report-nav">
-        <button class="report-item active" data-view="dashboard"><span class="ic">📊</span><span class="lbl">Día de Ayer</span></button>
-        <button class="report-item" data-view="controlTienda"><span class="ic">🏪</span><span class="lbl">Control por tienda</span></button>
-        <button class="report-item" data-view="noEncontrados"><span class="ic">🔎</span><span class="lbl">No encontrados</span></button>
-        <button class="report-item" data-view="regiones"><span class="ic">🗺️</span><span class="lbl">Regiones</span></button>
+        <button class="report-item active" data-view="resumen"><span class="ic">📊</span><span class="lbl">Resumen</span></button>
+        <button class="report-item" data-view="coord"><span class="ic">👥</span><span class="lbl">Coordinadores</span></button>
+        <button class="report-item" data-view="tiendas"><span class="ic">🏪</span><span class="lbl">Tiendas</span></button>
+        <button class="report-item" data-view="historico"><span class="ic">📈</span><span class="lbl">Histórico</span></button>
       </nav>
+      <div class="sidebar-foot"><span id="updLbl" class="muted"></span></div>
     </aside>
 
     <section class="content">
-      <!-- ░░ DASHBOARD ░░ -->
-      <div id="viewDashboard" class="view">
-        <div class="filters">
-          <label>Fecha <input type="date" id="fechaInput" /></label>
-          <div class="region-filter"><span class="muted">Regiones:</span><div id="regionChips" class="region-chips"></div></div>
-          <button id="aplicarBtn" class="btn btn-primary">Aplicar</button>
-        </div>
-        <h3 class="block-title">Ventas <span class="muted" id="ventasFechaLbl"></span></h3>
-        <div class="cards" id="cardsVentas"></div>
-        <h3 class="block-title">Gestión del día cerrado <span class="muted">(entrega = fecha)</span></h3>
-        <div class="cards" id="cardsGestion"></div>
+      <!-- RESUMEN -->
+      <div id="viewResumen" class="view">
+        <h3 class="block-title">Indicadores de la semana</h3>
+        <div class="cards" id="kpisVenta"></div>
+        <h3 class="block-title">Operativo <span class="muted">(targets: OT ≥98% · Fillrate ≥95% · Faltantes ≤5%)</span></h3>
+        <div class="cards" id="kpisOper"></div>
         <div class="two-col">
-          <div class="panel"><h4>Canal de entrega</h4><div id="canalList" class="kv-list"></div></div>
-          <div class="panel"><h4>Por región <span class="muted" id="regionTblHint"></span></h4>
-            <div class="table-wrap small"><table id="regionTable"><thead></thead><tbody></tbody></table></div>
-          </div>
+          <div class="panel"><h4>Mix de canal</h4><div id="mixList" class="kv-list"></div></div>
+          <div class="panel"><h4>Comparativo vs semana anterior</h4><div id="vslwBox" class="vslw"></div></div>
         </div>
       </div>
 
-      <!-- ░░ CONTROL POR TIENDA ░░ -->
-      <div id="viewControlTienda" class="view" hidden>
-        <div class="filters">
-          <label>Fecha <input type="date" id="fechaInputCT" /></label>
-          <div class="region-filter"><span class="muted">Regiones:</span><div id="regionChipsCT" class="region-chips"></div></div>
-          <span class="muted" id="ctResumen"></span>
-        </div>
-        <p class="muted ct-leyenda">Ordenado por cumplimiento: las tiendas <b class="bad-t">peor</b> arriba (rojo), las <b class="ok-t">mejor</b> abajo (verde).</p>
-        <div class="table-wrap"><table id="controlTable"><thead></thead><tbody></tbody></table></div>
+      <!-- COORDINADORES -->
+      <div id="viewCoord" class="view" hidden>
+        <h3 class="block-title">Por coordinador</h3>
+        <div class="coord-cards" id="coordCards"></div>
+        <div class="table-wrap"><table id="coordTable"><thead></thead><tbody></tbody></table></div>
       </div>
 
-      <!-- ░░ NO ENCONTRADOS ░░ -->
-      <div id="viewNoEncontrados" class="view" hidden>
+      <!-- TIENDAS -->
+      <div id="viewTiendas" class="view" hidden>
         <div class="filters">
-          <label>Días <input type="number" id="diasInput" min="1" max="30" value="1" /></label>
-          <button id="runNoEnc" class="btn btn-primary">Ejecutar</button>
-          <span id="noEncStatus" class="muted"></span>
+          <label>Coordinador
+            <select id="coordFilter"><option value="">Todos</option><option>Pedro</option><option>Nicolás</option><option>Germán</option></select>
+          </label>
+          <label>Ordenar por
+            <select id="sortBy"><option value="ot_prep">OT Preparación</option><option value="fillrate">Fillrate</option><option value="ventas_M">Venta</option><option value="falt_pct">% Faltantes</option><option value="ot_del">OT Delivery</option></select>
+          </label>
+          <span class="muted" id="tiResumen"></span>
         </div>
-        <div class="table-wrap"><table id="noEncTable"><thead></thead><tbody></tbody></table></div>
+        <p class="muted ct-leyenda">Coloreado por target: <b class="bad-t">rojo</b> = no cumple, <b class="ok-t">verde</b> = cumple.</p>
+        <div class="table-wrap"><table id="tiendasTable"><thead></thead><tbody></tbody></table></div>
       </div>
 
-      <!-- ░░ REGIONES ░░ -->
-      <div id="viewRegiones" class="view" hidden>
-        <div class="filters">
-          <button id="addRegionBtn" class="btn btn-ghost">+ Agregar región</button>
-          <button id="saveRegionsBtn" class="btn btn-primary">Guardar cambios</button>
-          <button id="resetRegionsBtn" class="btn btn-ghost">Restaurar default</button>
-          <span id="regionsStatus" class="muted"></span>
-        </div>
-        <div id="regionsAdmin" class="regions-admin"></div>
+      <!-- HISTÓRICO -->
+      <div id="viewHistorico" class="view" hidden>
+        <h3 class="block-title">Evolución diaria <span class="muted">(últimos días · por fecha de creación)</span></h3>
+        <div class="panel chart-panel"><canvas id="histChart"></canvas></div>
+        <div class="table-wrap"><table id="histTable"><thead></thead><tbody></tbody></table></div>
       </div>
     </section>
   </main>
-
-  <div id="modal" class="modal" hidden>
-    <div class="modal-card">
-      <div class="modal-head"><h3 id="modalTitle">Antigüedad de los pedidos</h3><button id="modalClose" class="icon-btn">✕</button></div>
-      <p class="muted" id="modalSubtitle"></p>
-      <div id="modalBody" class="age-bars"></div>
-    </div>
-  </div>
 
   <div id="loader" class="loader" hidden><div class="spinner"></div></div>
   <script type="module" src="/app.js"></script>

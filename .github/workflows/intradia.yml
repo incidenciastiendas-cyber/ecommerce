@@ -20,14 +20,14 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
 
-      - name: Generar día en curso (hoy)
+      - name: Actualizar snapshot (light, sin joins pesados)
         env:
           CLICKHOUSE_HOST: quantics.data-lake.janis.in
           CLICKHOUSE_PORT: "8443"
           CLICKHOUSE_SCHEMA: janis_datawarehouse_masonline
           CH_USER: ${{ secrets.CLICKHOUSE_USER }}
           CH_PASS: ${{ secrets.CLICKHOUSE_PASSWORD }}
-        run: python bot/build_day.py intradia
+        run: python bot/build_snapshot.py light
 
       - name: Deploy a Firebase Hosting (sin commit)
         uses: FirebaseExtended/action-hosting-deploy@v0

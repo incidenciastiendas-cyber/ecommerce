@@ -42,3 +42,8 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+
+# Dashboard de referencia (contiene credenciales en texto plano)
+_ref_dashboard/
+Dashboard Mas Online*.zip
+*.xlsx

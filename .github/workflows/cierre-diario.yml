@@ -23,21 +23,21 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
 
-      - name: Generar día cerrado (ayer)
+      - name: Generar snapshot de la semana (completo)
         env:
           CLICKHOUSE_HOST: quantics.data-lake.janis.in
           CLICKHOUSE_PORT: "8443"
           CLICKHOUSE_SCHEMA: janis_datawarehouse_masonline
           CH_USER: ${{ secrets.CLICKHOUSE_USER }}
           CH_PASS: ${{ secrets.CLICKHOUSE_PASSWORD }}
-        run: python bot/build_day.py cierre
+        run: python bot/build_snapshot.py
 
-      - name: Archivar el día en el repo
+      - name: Archivar snapshot en el repo
         run: |
           git config user.name "janis-bot"
           git config user.email "bot@gdnargentina.com"
-          git add public/data/dias/*.json public/data/index.json
-          git commit -m "data: cierre diario [skip ci]" || echo "sin cambios"
+          git add public/data/snapshot.json
+          git commit -m "data: snapshot semanal [skip ci]" || echo "sin cambios"
           git push || echo "nada que pushear"
 
       - name: Deploy a Firebase Hosting
