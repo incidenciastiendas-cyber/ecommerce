@@ -106,6 +106,17 @@ def main():
             FROM {DB}.orders WHERE commerce_date_created >= '{hist_i}' AND commerce_date_created < '{HOY_F}' {FILTROS}
             GROUP BY f, t""")
 
+    # Antigüedad de los pedidos del DÍA CERRADO (ayer): días entre creación y despacho
+    qa = q(f"""SELECT dateDiff('day', toDate(commerce_date_created), toDate(shipping_dispatch_date)) AS edad, countDistinct(order_id) AS nn
+        FROM {DB}.orders WHERE shipping_dispatch_date >= '{str(AYER)}' AND shipping_dispatch_date < '{SEM_F}' {FILTROS}
+        GROUP BY edad ORDER BY edad""")
+    a_dist, a_tot, a_w = {}, 0, 0
+    for r in qa:
+        e = int(r["edad"]); c = int(r["nn"])
+        if e < 0: continue
+        a_dist[str(e)] = c; a_tot += c; a_w += e * c
+    antiguedad = {"fecha": str(AYER), "total": a_tot, "prom_dias": round(a_w / a_tot, 1) if a_tot else 0, "dist": a_dist}
+
     # ── prev snapshot (para preservar OT/Fillrate/histórico en light) ──
     prev, prev_snap = {}, {}
     if LIGHT and OUT.exists():
@@ -198,8 +209,9 @@ def main():
     # (se mantienen los crudos _po/_pt/_ip/_io/_fn para que el modo light pueda preservarlos)
     stores.sort(key=lambda s: -s["ventas_M"])
 
-    snap = {"meta": {"upd": datetime.now(timezone.utc).isoformat(), "semana": SEM_LABEL, "targets": TARGETS, "light": LIGHT},
-            "sa": sa, "coords": coords, "stores": stores, "daily": daily, "ds": ds}
+    snap = {"meta": {"upd": datetime.now(timezone.utc).isoformat(), "semana": SEM_LABEL, "targets": TARGETS, "light": LIGHT,
+                     "hoy": str(HOY), "ayer": str(AYER)},
+            "sa": sa, "coords": coords, "stores": stores, "daily": daily, "ds": ds, "antiguedad": antiguedad}
     if not stores:
         print("⚠️  Sin datos (cuota?). No se sobrescribe."); sys.exit(0)
     OUT.write_text(json.dumps(snap, ensure_ascii=False), encoding="utf-8")

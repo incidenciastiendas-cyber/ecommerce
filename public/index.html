@@ -39,6 +39,7 @@
     <aside class="sidebar">
       <nav class="report-nav">
         <button class="report-item active" data-view="resumen"><span class="ic">📊</span><span class="lbl">Resumen</span></button>
+        <button class="report-item" data-view="dia"><span class="ic">📦</span><span class="lbl">Día cerrado</span></button>
         <button class="report-item" data-view="top5"><span class="ic">🏆</span><span class="lbl">Top 5</span></button>
         <button class="report-item" data-view="coord"><span class="ic">👥</span><span class="lbl">Coordinadores</span></button>
         <button class="report-item" data-view="tiendas"><span class="ic">🏪</span><span class="lbl">Tiendas</span></button>
@@ -64,6 +65,16 @@
           <div class="panel"><h4>Mix de canal</h4><div id="mixList" class="kv-list"></div></div>
           <div class="panel"><h4>Comparativo vs semana anterior</h4><div id="vslwBox" class="vslw"></div></div>
         </div>
+      </div>
+
+      <!-- DÍA CERRADO -->
+      <div id="viewDia" class="view" hidden>
+        <h3 class="block-title">🛒 Venta del día <span class="muted" id="hoyLbl"></span></h3>
+        <div class="cards" id="ventaHoy"></div>
+        <div class="panel" style="margin-top:14px"><h4>Mix de canal (hoy)</h4><div id="mixHoy" class="kv-list"></div></div>
+        <h3 class="block-title">📦 Día cerrado <span class="muted" id="ayerLbl"></span></h3>
+        <div class="cards" id="cierreCards"></div>
+        <div class="panel" style="margin-top:14px"><h4>¿Cuándo se crearon esos pedidos? (antigüedad)</h4><div id="antigBars" class="age-bars"></div></div>
       </div>
 
       <!-- TOP 5 -->

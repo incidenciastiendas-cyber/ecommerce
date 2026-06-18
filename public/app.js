@@ -65,9 +65,9 @@ document.querySelectorAll(".report-item").forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll(".report-item").forEach((x) => x.classList.remove("active")); b.classList.add("active");
     const v = b.dataset.view;
-    el("viewResumen").hidden = v !== "resumen"; el("viewTop5").hidden = v !== "top5"; el("viewCoord").hidden = v !== "coord";
-    el("viewTiendas").hidden = v !== "tiendas"; el("viewHistorico").hidden = v !== "historico";
-    if (v === "resumen") renderResumen(); if (v === "top5") renderTop5(); if (v === "coord") renderCoord();
+    el("viewResumen").hidden = v !== "resumen"; el("viewDia").hidden = v !== "dia"; el("viewTop5").hidden = v !== "top5";
+    el("viewCoord").hidden = v !== "coord"; el("viewTiendas").hidden = v !== "tiendas"; el("viewHistorico").hidden = v !== "historico";
+    if (v === "resumen") renderResumen(); if (v === "dia") renderDia(); if (v === "top5") renderTop5(); if (v === "coord") renderCoord();
     if (v === "tiendas") renderTiendas(); if (v === "historico") renderHistorico();
   };
 });
@@ -125,6 +125,32 @@ function renderResumen() {
        <p class="muted mini">Si la semana está en curso compara parcial vs semana completa anterior (se normaliza al cerrar).</p>`;
   } else {
     el("vslwBox").innerHTML = '<p class="muted">El comparativo vs semana anterior se muestra en la vista <b>Semana</b>.</p>';
+  }
+}
+
+// ── DÍA CERRADO (venta del día + antigüedad) ──
+function renderDia() {
+  const daily = (SNAP.daily || []).slice().sort((a, b) => a.f < b.f ? -1 : 1);
+  const hoy = daily[daily.length - 1], ayer = daily[daily.length - 2];
+  const ventaCards = (d) => [
+    { v: money(d.v * 1e6), l: "Venta online" }, { v: nf.format(d.p), l: "Pedidos" },
+    { v: money(d.p ? Math.round(d.v * 1e6 / d.p) : 0), l: "Ticket promedio" }, { v: nf.format(d.u), l: "Unidades" },
+  ];
+  const mix = (d, cont) => { const t = (d.hd + d.rt + d.dt) || 1; el(cont).innerHTML = [["Envío a domicilio (HD)", d.hd], ["Retiro en tienda", d.rt], ["Drive through", d.dt]].map(([k, x]) => `<div class="kv"><span>${k}</span><span><b>${Math.round(100 * x / t)}%</b> <span class="muted">${nf.format(x)}</span></span></div>`).join(""); };
+
+  if (hoy) { el("hoyLbl").textContent = "· " + hoy.f + " (en curso, lo que estamos vendiendo hoy)"; card("ventaHoy", ventaCards(hoy)); mix(hoy, "mixHoy"); }
+  if (ayer) { el("ayerLbl").textContent = "· " + ayer.f; card("cierreCards", ventaCards(ayer)); }
+
+  // Antigüedad de los pedidos del día cerrado
+  const a = SNAP.antiguedad;
+  if (a && a.total) {
+    const entries = Object.entries(a.dist).map(([d, n]) => [Number(d), n]).sort((x, y) => x[0] - y[0]);
+    const max = Math.max(1, ...entries.map((e) => e[1]));
+    const lbl = (d) => d === 0 ? "Mismo día" : d === 1 ? "1 día antes" : `${d} días antes`;
+    el("antigBars").innerHTML = `<div class="prom-line">Promedio de antigüedad: <b>${a.prom_dias} días</b> · ${nf.format(a.total)} pedidos despachados el ${a.fecha}</div>` +
+      entries.map(([d, n]) => `<div class="age-row"><span class="age-lbl">${lbl(d)}</span><span class="age-bar"><span style="width:${Math.round(100 * n / max)}%"></span></span><span class="age-val">${nf.format(n)}</span></div>`).join("");
+  } else {
+    el("antigBars").innerHTML = '<p class="muted">El desglose de antigüedad se calcula en la próxima corrida del bot (tras el reset de cuota del data lake, 00:00).</p>';
   }
 }
 
