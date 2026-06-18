@@ -92,19 +92,25 @@ def main():
     r4 = q4[0] if q4 else {}
 
     # Q5 — Diario canal / Q6 — Diario por tienda (commerce_date_created)
+    # En light: ventana corta (3 días) y se omite Q6 (se preserva el ds previo) -> mucha menos lectura.
+    hist_i = str(AYER - timedelta(days=3 if LIGHT else 28))
     q5 = q(f"""SELECT toString(toDate(commerce_date_created)) f, countDistinct(order_id) p, round(sum(total_amount),0) v,
         sum(items_count) u, countIf(shipping_type='delivery') hd, countIf(shipping_type='store_pickup') rt, countIf(shipping_type='drive_through') dt
-        FROM {DB}.orders WHERE commerce_date_created >= '{HIST_I}' AND commerce_date_created < '{SEM_F}' {FILTROS}
+        FROM {DB}.orders WHERE commerce_date_created >= '{hist_i}' AND commerce_date_created < '{SEM_F}' {FILTROS}
         GROUP BY f ORDER BY f""")
-    q6 = q(f"""SELECT toString(toDate(commerce_date_created)) f, {TIENDA} AS t, countDistinct(order_id) p, round(sum(total_amount),0) v,
-        sum(items_count) u, countIf(shipping_type='delivery') hd, countIf(shipping_type='store_pickup') rt, countIf(shipping_type='drive_through') dt
-        FROM {DB}.orders WHERE commerce_date_created >= '{HIST_I}' AND commerce_date_created < '{SEM_F}' {FILTROS}
-        GROUP BY f, t""")
+    q6 = []
+    if not LIGHT:
+        q6 = q(f"""SELECT toString(toDate(commerce_date_created)) f, {TIENDA} AS t, countDistinct(order_id) p, round(sum(total_amount),0) v,
+            sum(items_count) u, countIf(shipping_type='delivery') hd, countIf(shipping_type='store_pickup') rt, countIf(shipping_type='drive_through') dt
+            FROM {DB}.orders WHERE commerce_date_created >= '{hist_i}' AND commerce_date_created < '{SEM_F}' {FILTROS}
+            GROUP BY f, t""")
 
-    # ── prev snapshot (para preservar OT/Fillrate en light) ──
-    prev = {}
+    # ── prev snapshot (para preservar OT/Fillrate/histórico en light) ──
+    prev, prev_snap = {}, {}
     if LIGHT and OUT.exists():
-        try: prev = {s["num"]: s for s in json.loads(OUT.read_text(encoding="utf-8")).get("stores", [])}
+        try:
+            prev_snap = json.loads(OUT.read_text(encoding="utf-8"))
+            prev = {s["num"]: s for s in prev_snap.get("stores", [])}
         except: pass
 
     n = lambda v, d=0: (float(v) if v not in (None, "", "nan") else d)
@@ -176,11 +182,17 @@ def main():
     daily = [{"f": r["f"], "p": int(n(r["p"])), "v": round(n(r["v"]) / 1e6, 2), "u": int(n(r["u"])),
               "hd": int(n(r["hd"])), "rt": int(n(r["rt"])), "dt": int(n(r["dt"]))}
              for r in q5 if int(n(r["p"])) >= 30]
-    ds = {}
-    for r in q6:
-        if not vnum(r["t"]): continue
-        ds.setdefault(r["f"], {})[str(r["t"]).strip()] = {"p": int(n(r["p"])), "v": round(n(r["v"]) / 1e6, 3), "u": int(n(r["u"])),
-            "hd": int(n(r["hd"])), "rt": int(n(r["rt"])), "dt": int(n(r["dt"]))}
+    if LIGHT and prev_snap.get("daily"):  # mantener histórico previo, refrescar los días nuevos
+        freshf = {d["f"] for d in daily}
+        daily = sorted([d for d in prev_snap["daily"] if d["f"] not in freshf] + daily, key=lambda x: x["f"])
+    if LIGHT:
+        ds = prev_snap.get("ds", {})  # Q6 omitido en light -> se preserva
+    else:
+        ds = {}
+        for r in q6:
+            if not vnum(r["t"]): continue
+            ds.setdefault(r["f"], {})[str(r["t"]).strip()] = {"p": int(n(r["p"])), "v": round(n(r["v"]) / 1e6, 3), "u": int(n(r["u"])),
+                "hd": int(n(r["hd"])), "rt": int(n(r["rt"])), "dt": int(n(r["dt"]))}
 
     # limpiar crudos
     for s in stores:

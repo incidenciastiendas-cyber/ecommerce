@@ -5,7 +5,7 @@ name: Intradía (día en curso = hoy)
 
 on:
   schedule:
-    - cron: "*/30 10-23 * * *"   # cada 30 min, ~07-20 AR. Achicar si la cuota aprieta.
+    - cron: "0 11-23/2 * * *"   # cada 2 h, ~08-20 AR. Light = lectura mínima (cuida la cuota).
   workflow_dispatch: {}
 
 concurrency:
