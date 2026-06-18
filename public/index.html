@@ -39,6 +39,7 @@
     <aside class="sidebar">
       <nav class="report-nav">
         <button class="report-item active" data-view="resumen"><span class="ic">📊</span><span class="lbl">Resumen</span></button>
+        <button class="report-item" data-view="top5"><span class="ic">🏆</span><span class="lbl">Top 5</span></button>
         <button class="report-item" data-view="coord"><span class="ic">👥</span><span class="lbl">Coordinadores</span></button>
         <button class="report-item" data-view="tiendas"><span class="ic">🏪</span><span class="lbl">Tiendas</span></button>
         <button class="report-item" data-view="historico"><span class="ic">📈</span><span class="lbl">Histórico</span></button>
@@ -49,7 +50,13 @@
     <section class="content">
       <!-- RESUMEN -->
       <div id="viewResumen" class="view">
-        <h3 class="block-title">Indicadores de la semana</h3>
+        <div class="period-sel" id="periodSel">
+          <button class="pbtn" data-p="hoy">Hoy <span class="muted">(en curso)</span></button>
+          <button class="pbtn" data-p="ayer">Ayer <span class="muted">(día cerrado)</span></button>
+          <button class="pbtn active" data-p="semana">Semana</button>
+          <button class="pbtn" data-p="mtd">Mes (MTD)</button>
+        </div>
+        <h3 class="block-title">Ventas <span class="muted" id="periodLbl"></span></h3>
         <div class="cards" id="kpisVenta"></div>
         <h3 class="block-title">Operativo <span class="muted">(targets: OT ≥98% · Fillrate ≥95% · Faltantes ≤5%)</span></h3>
         <div class="cards" id="kpisOper"></div>
@@ -57,6 +64,12 @@
           <div class="panel"><h4>Mix de canal</h4><div id="mixList" class="kv-list"></div></div>
           <div class="panel"><h4>Comparativo vs semana anterior</h4><div id="vslwBox" class="vslw"></div></div>
         </div>
+      </div>
+
+      <!-- TOP 5 -->
+      <div id="viewTop5" class="view" hidden>
+        <h3 class="block-title">Top 5 de la semana <span class="muted">(15/06 al 17/06)</span></h3>
+        <div class="top5-grid" id="top5Grid"></div>
       </div>
 
       <!-- COORDINADORES -->

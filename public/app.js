@@ -65,25 +65,45 @@ document.querySelectorAll(".report-item").forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll(".report-item").forEach((x) => x.classList.remove("active")); b.classList.add("active");
     const v = b.dataset.view;
-    el("viewResumen").hidden = v !== "resumen"; el("viewCoord").hidden = v !== "coord";
+    el("viewResumen").hidden = v !== "resumen"; el("viewTop5").hidden = v !== "top5"; el("viewCoord").hidden = v !== "coord";
     el("viewTiendas").hidden = v !== "tiendas"; el("viewHistorico").hidden = v !== "historico";
-    if (v === "resumen") renderResumen(); if (v === "coord") renderCoord();
+    if (v === "resumen") renderResumen(); if (v === "top5") renderTop5(); if (v === "coord") renderCoord();
     if (v === "tiendas") renderTiendas(); if (v === "historico") renderHistorico();
   };
+});
+
+// Selector de período (Resumen)
+let PERIOD = "semana";
+document.querySelectorAll("#periodSel .pbtn").forEach((b) => {
+  b.onclick = () => { document.querySelectorAll("#periodSel .pbtn").forEach((x) => x.classList.remove("active")); b.classList.add("active"); PERIOD = b.dataset.p; renderResumen(); };
 });
 
 // ot delivery global (ponderado por pedidos)
 function otDelGlobal() { let n = 0, d = 0; (SNAP.stores || []).forEach((s) => { d += s.pedidos; n += (s.ot_del || 0) / 100 * s.pedidos; }); return d ? +(n / d * 100).toFixed(1) : 0; }
 
 // ── RESUMEN ──
+// Ventas según el período elegido. Semana -> sa (JANIS semanal). Otros -> desde daily (commerce_date_created).
+function periodVentas() {
+  const sa = SNAP.sa || {}, daily = (SNAP.daily || []).slice().sort((a, b) => a.f < b.f ? -1 : 1);
+  if (PERIOD === "semana") return { venta: (sa.ventas_M || 0) * 1e6, pedidos: sa.pedidos || 0, ticket: sa.ticket_prom || 0, unidades: sa.unidades || 0, hd: sa.pct_hd || 0, rt: sa.pct_rt || 0, dt: sa.pct_dt || 0, pct: true, label: "Semana " + (sa.semana || "") };
+  const hoy = daily[daily.length - 1], ayer = daily[daily.length - 2];
+  let sel = [], label = "";
+  if (PERIOD === "hoy") { sel = hoy ? [hoy] : []; label = "Hoy " + (hoy ? hoy.f : "") + " · en curso"; }
+  else if (PERIOD === "ayer") { sel = ayer ? [ayer] : []; label = "Día cerrado " + (ayer ? ayer.f : ""); }
+  else if (PERIOD === "mtd") { const ym = (ayer ? ayer.f : "").slice(0, 7); sel = daily.filter((d) => d.f.slice(0, 7) === ym && d.f <= (ayer ? ayer.f : "")); label = "Mes a la fecha (" + ym + ")"; }
+  const sum = (k) => sel.reduce((a, d) => a + (d[k] || 0), 0);
+  const venta = sum("v") * 1e6, ped = sum("p"), hd = sum("hd"), rt = sum("rt"), dt = sum("dt");
+  return { venta, pedidos: ped, ticket: ped ? Math.round(venta / ped) : 0, unidades: sum("u"), hd, rt, dt, pct: false, mixTot: hd + rt + dt, label };
+}
+
 function renderResumen() {
-  const sa = SNAP.sa || {};
+  const sa = SNAP.sa || {}, pv = periodVentas();
+  el("periodLbl").textContent = "· " + pv.label;
   card("kpisVenta", [
-    { v: money((sa.ventas_M || 0) * 1e6), l: "Venta semana" },
-    { v: nf.format(sa.pedidos || 0), l: "Pedidos" },
-    { v: money(sa.ticket_prom || 0), l: "Ticket promedio" },
-    { v: nf.format(sa.unidades || 0), l: "Unidades" },
+    { v: money(pv.venta), l: "Venta" }, { v: nf.format(pv.pedidos), l: "Pedidos" },
+    { v: money(pv.ticket), l: "Ticket promedio" }, { v: nf.format(pv.unidades), l: "Unidades" },
   ]);
+  // Operativo: SIEMPRE semanal (criterio del documento técnico)
   const otd = otDelGlobal();
   card("kpisOper", [
     { v: (sa.ot_prep ?? 0) + "%", l: "OT Preparación", k: "ot_prep", val: sa.ot_prep },
@@ -91,15 +111,36 @@ function renderResumen() {
     { v: (sa.fillrate ?? 0) + "%", l: "Order Fillrate", k: "fillrate", val: sa.fillrate },
     { v: (sa.falt_pct ?? 0) + "%", l: "% Faltantes", k: "falt", val: sa.falt_pct },
   ]);
-  // Mix
-  el("mixList").innerHTML = [["Envío a domicilio (HD)", sa.pct_hd], ["Retiro en tienda", sa.pct_rt], ["Drive through", sa.pct_dt]]
-    .map(([k, v]) => `<div class="kv"><span>${k}</span><span><b>${v ?? 0}%</b></span></div>`).join("");
-  // VS LW
-  const arrow = (x) => x >= 0 ? `<span class="up">▲ ${x}%</span>` : `<span class="down">▼ ${x}%</span>`;
-  el("vslwBox").innerHTML =
-    `<div class="kv"><span>Pedidos</span><span>${arrow(sa.var_ped_lw || 0)} <span class="muted">(${nf.format(sa.ped_ant || 0)} sem. ant.)</span></span></div>
-     <div class="kv"><span>Venta</span><span>${arrow(sa.var_ven_lw || 0)} <span class="muted">($${sa.ven_ant_M || 0}M sem. ant.)</span></span></div>
-     <p class="muted mini">Nota: si la semana está en curso compara parcial vs semana completa anterior (se normaliza al cerrar la semana).</p>`;
+  // Mix del período
+  const t = pv.pct ? 100 : (pv.mixTot || 1);
+  const pc = (x) => pv.pct ? (x || 0) : Math.round(100 * x / t);
+  el("mixList").innerHTML = [["Envío a domicilio (HD)", pv.hd], ["Retiro en tienda", pv.rt], ["Drive through", pv.dt]]
+    .map(([k, v]) => `<div class="kv"><span>${k}</span><span><b>${pc(v)}%</b></span></div>`).join("");
+  // VS LW (solo tiene sentido en Semana)
+  if (PERIOD === "semana") {
+    const arrow = (x) => x >= 0 ? `<span class="up">▲ ${x}%</span>` : `<span class="down">▼ ${x}%</span>`;
+    el("vslwBox").innerHTML =
+      `<div class="kv"><span>Pedidos</span><span>${arrow(sa.var_ped_lw || 0)} <span class="muted">(${nf.format(sa.ped_ant || 0)} sem. ant.)</span></span></div>
+       <div class="kv"><span>Venta</span><span>${arrow(sa.var_ven_lw || 0)} <span class="muted">($${sa.ven_ant_M || 0}M sem. ant.)</span></span></div>
+       <p class="muted mini">Si la semana está en curso compara parcial vs semana completa anterior (se normaliza al cerrar).</p>`;
+  } else {
+    el("vslwBox").innerHTML = '<p class="muted">El comparativo vs semana anterior se muestra en la vista <b>Semana</b>.</p>';
+  }
+}
+
+// ── TOP 5 ──
+function renderTop5() {
+  const st = (SNAP.stores || []).filter((s) => s.pedidos > 0);
+  const top = (key, asc) => st.slice().sort((a, b) => asc ? a[key] - b[key] : b[key] - a[key]).slice(0, 5);
+  const blk = (title, rows, valFn, kpi, kf) => `<div class="panel top5-block"><h4>${title}</h4>` +
+    (rows.length ? rows.map((s, i) => `<div class="top5-row"><span class="rk">${i + 1}</span><span class="t5n">${esc(s.nombre)} <span class="muted">· ${s.coord}</span></span><span class="t5v ${kpi ? lvlClass(kpi, s[kf]) + "-t" : ""}">${valFn(s)}</span></div>`).join("") : '<div class="muted">Sin datos</div>') + "</div>";
+  el("top5Grid").innerHTML = [
+    blk("🥇 Top venta", top("ventas_M"), (s) => money(s.ventas_M * 1e6)),
+    blk("📦 Top pedidos", top("pedidos"), (s) => nf.format(s.pedidos) + " ped"),
+    blk("⚠️ Peor OT Preparación", top("ot_prep", true), (s) => s.ot_prep + "%", "ot_prep", "ot_prep"),
+    blk("⚠️ Peor Fillrate", top("fillrate", true), (s) => s.fillrate + "%", "fillrate", "fillrate"),
+    blk("⚠️ Más faltantes", top("falt_pct"), (s) => s.falt_pct + "%", "falt", "falt_pct"),
+  ].join("");
 }
 function card(cont, items) {
   el(cont).innerHTML = items.map((i) => {

@@ -179,3 +179,19 @@ td.cell-bad { background: #fdecec; color: var(--bad); font-weight: 700; }
 /* Gráfico histórico */
 .chart-panel { height: 360px; margin-bottom: 18px; }
 .chart-panel canvas { max-height: 320px; }
+
+/* Selector de período */
+.period-sel { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.pbtn { background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.pbtn:hover { border-color: var(--green); }
+.pbtn.active { background: var(--green); border-color: var(--green); color: #fff; }
+.pbtn.active .muted { color: rgba(255,255,255,.85); }
+
+/* Top 5 */
+.top5-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.top5-block h4 { margin: 0 0 10px; }
+.top5-row { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.top5-row:last-child { border-bottom: none; }
+.rk { width: 22px; height: 22px; display: grid; place-items: center; background: var(--green-soft); color: var(--green-dark); border-radius: 50%; font-weight: 700; font-size: 12px; }
+.t5n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t5v { font-weight: 700; }
